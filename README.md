@@ -1,1 +1,1 @@
-# student_planner
+# Student Planner
