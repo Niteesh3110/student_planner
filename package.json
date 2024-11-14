@@ -1,0 +1,18 @@
+{
+  "name": "student_planner",
+  "version": "1.0.0",
+  "description": "A student planner",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "app.js"
+  },
+  "type": "module",
+  "author": "ABC",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.1",
+    "express-handlebars": "^8.0.1",
+    "mongodb": "^6.10.0"
+  }
+}
