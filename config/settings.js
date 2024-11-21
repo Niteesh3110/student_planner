@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 
-dotenv.load();
+dotenv.config({ path: "/Users/nits/Desktop/student_planner/.env" });
 
-MONGODB_URL = process.env.MONGODB_URL;
+const mongoUrl = process.env.MONGODB_URL;
 
 export const mongoConfig = {
-  serverUrl: MONGODB_URL,
+  serverUrl: mongoUrl,
   database: "student_planner",
 };
