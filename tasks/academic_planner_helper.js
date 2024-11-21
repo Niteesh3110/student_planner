@@ -2,6 +2,7 @@ import { dbConnection, closeConnection } from "../config/mongoConnection.js";
 import { courses } from "../config/mongoCollection.js";
 
 const db = await dbConnection();
+s;
 const courseCol = await courses();
 
 export async function validateCourseCode(courseCode) {
@@ -20,25 +21,24 @@ export async function validateCourseCode(courseCode) {
     )
       return { boolean: false, error: "Invalid Course Code" };
   }
-  return { boolean: true, error: "" };
+  return { boolean: true };
 }
 
-export async function checkCourseExists(courseCode) {
-  let checkCourseCode = await validateCourseCode(courseCode);
-  if (!checkCourseCode.boolean) return checkCourseCode.error;
-  try {
-    let result = await courseCol.findOne({ courseCode: courseCode });
-    if (!result) {
-      return { boolean: false, error: "Course not found" };
-    }
-    return { boolean: true, course: result };
-  } catch (error) {
-    return {
-      boolean: false,
-      error: `Something went wrong when finding course ${error.message}`,
-    };
-  }
-}
+// export async function checkCourseExists(courseCode) {
+//   let checkCourseCode = await validateCourseCode(courseCode);
+//   if (!checkCourseCode.boolean) return checkCourseCode.error;
+//   try {
+//     let result = await courseCol.findOne({ courseCode: courseCode });
+//     if (!result) {
+//       return { boolean: false, error: "Course not found" };
+//     }
+//     return { boolean: true, course: result };
+//   } catch (error) {
+//     return {
+//       boolean: false,
+//       error: `Something went wrong when finding course ${error.message}`,
+//     };
+//   }
+// }
 
-console.log(await checkCourseExists("CS_546"));
-await closeConnection();
+// await closeConnection();
