@@ -8,33 +8,31 @@ const data = {
     },
   ],
 };
-
-function drag(simulation) {
-  function dragstarted(event, d) {
-    if (!event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
-
-  function dragged(event, d) {
-    d.fx = event.x;
-    d.fy = event.y;
-  }
-
-  function dragended(event, d) {
-    if (!event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-  }
-
-  return d3
-    .drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended);
-}
-
 async function chart() {
+  function drag(simulation) {
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+
+    return d3
+      .drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended);
+  }
   // Specify the chart’s dimensions.
   const width = 928;
   const height = 600;
@@ -50,11 +48,11 @@ async function chart() {
       "link",
       d3
         .forceLink(links)
-        .id((d) => d.data.name)
-        .distance(50)
-        .strength(1)
+        .id((d) => d.id)
+        .distance(100)
+        .strength(2)
     )
-    .force("charge", d3.forceManyBody().strength(-50))
+    .force("charge", d3.forceManyBody().strength(-500))
     .force("x", d3.forceX())
     .force("y", d3.forceY());
 
@@ -64,7 +62,8 @@ async function chart() {
     .attr("width", width)
     .attr("height", height)
     .attr("viewBox", [-width / 2, -height / 2, width, height])
-    .attr("style", "max-width: 100%; height: auto;");
+    .attr("style", "max-width: 100%; height: auto;")
+    .attr("style", "border: 1px solid black;");
 
   // Append links.
   const link = svg
@@ -86,13 +85,16 @@ async function chart() {
     .join("circle")
     .attr("fill", (d) => (d.children ? null : "#000"))
     .attr("stroke", (d) => (d.children ? null : "#fff"))
-    .attr("r", 3.5)
+    .attr("r", 4)
     .call(drag(simulation));
 
   node.append("title").text((d) => d.data.name);
 
-  node
-    .append("text")
+  const label = svg
+    .append("g")
+    .selectAll("text")
+    .data(nodes)
+    .join("text")
     .attr("dy", -10) // Position the label above the node
     .attr("x", 6) // Add some space between the node and the label
     .attr("text-anchor", "middle") // Center the text horizontally
@@ -106,6 +108,9 @@ async function chart() {
       .attr("y2", (d) => d.target.y);
 
     node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+
+    // Update label positions to follow nodes
+    label.attr("x", (d) => d.x).attr("y", (d) => d.y);
   });
 
   //   invalidation.then(() => simulation.stop());
@@ -113,10 +118,88 @@ async function chart() {
   return svg.node();
 }
 
+async function treeChart() {
+  const width = 928;
+  const height = 600;
+
+  // Define the tree data structure
+  const root = d3.hierarchy(data);
+  const treeLayout = d3.tree().size([height, width - 160]);
+  treeLayout(root);
+
+  const nodes = root.descendants();
+  const links = root.links();
+
+  // Create the SVG container
+  const svg = d3
+    .create("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [-width / 2, -height / 2, width, height]);
+
+  // Append links (edges)
+  svg
+    .append("g")
+    .attr("stroke", "#999")
+    .attr("stroke-opacity", 0.6)
+    .selectAll("line")
+    .data(links)
+    .join("line")
+    .attr("x1", (d) => d.source.x)
+    .attr("y1", (d) => d.source.y)
+    .attr("x2", (d) => d.target.x)
+    .attr("y2", (d) => d.target.y);
+
+  // Append nodes (circles)
+  const node = svg
+    .append("g")
+    .attr("fill", "#fff")
+    .attr("stroke", "#000")
+    .attr("stroke-width", 1.5)
+    .selectAll("circle")
+    .data(nodes)
+    .join("circle")
+    .attr("fill", (d) => (d.children ? null : "#000"))
+    .attr("stroke", (d) => (d.children ? null : "#fff"))
+    .attr("r", 3.5);
+
+  // Append text labels for nodes
+  svg
+    .append("g")
+    .selectAll("text")
+    .data(nodes)
+    .join("text")
+    .attr("dy", -10)
+    .attr("x", 6)
+    .attr("text-anchor", "middle")
+    .text((d) => d.data.name);
+
+  console.log(svg);
+  // Return the SVG node properly
+  return svg.node(); // Ensure this returns the SVG element
+}
+
 async function renderChart() {
   document.addEventListener("DOMContentLoaded", async function () {
+    // Get and append the first chart (svgNode)
     const svgNode = await chart();
-    document.querySelector("main").appendChild(svgNode);
+    const mainElement = document.querySelector("main");
+
+    if (mainElement) {
+      mainElement.appendChild(svgNode); // Append the first chart to 'main' element
+    } else {
+      console.error("The 'main' element was not found in the DOM.");
+    }
+
+    // Get and append the tree chart (treeSvgNode)
+    const treeSvgNode = await treeChart();
+    console.log(treeSvgNode);
+
+    if (mainElement) {
+      mainElement.appendChild(treeSvgNode); // Append the second chart to 'main' element
+    } else {
+      console.error("The 'main' element was not found in the DOM.");
+    }
   });
 }
 
