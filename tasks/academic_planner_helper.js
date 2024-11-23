@@ -1,8 +1,8 @@
 import { dbConnection, closeConnection } from "../config/mongoConnection.js";
 import { courses } from "../config/mongoCollection.js";
+import { getCourseNameAndPrereq } from "../data/academic_planner.js";
 
 const db = await dbConnection();
-s;
 const courseCol = await courses();
 
 export async function validateCourseCode(courseCode) {
@@ -23,6 +23,21 @@ export async function validateCourseCode(courseCode) {
   }
   return { boolean: true };
 }
+
+/* {
+  name: "CS",
+  children: [
+    { name: "Child 1" },
+    {
+      name: "Child 2",
+      children: [{ name: "Grandchild 1" }, { name: "Grandchild 2" }],
+    },
+    {
+      name: "Child3",
+      children: [{ name: "demo1" }, { name: "demo2" }],
+    },
+  ],
+};*/
 
 // export async function checkCourseExists(courseCode) {
 //   let checkCourseCode = await validateCourseCode(courseCode);

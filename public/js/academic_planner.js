@@ -1,13 +1,86 @@
+// import { getCourseByCourseCode } from "../../data/academic_planner.js";
+
+async function getAllCourses() {
+  try {
+    let response = await axios.get("http://localhost:3000/ap/getCourse");
+    const courseData = response.data;
+    return courseData;
+  } catch (error) {
+    if (error.response) {
+      console.error(error.response.data);
+    } else {
+      console.error(`Something went wrong ${error}`);
+    }
+  }
+}
+
+async function getCourseByCourseCode(courseCode) {
+  try {
+    let response = await axios.get(
+      `http://localhost:3000/ap/addCourse/${courseCode}`
+    );
+    const courseData = response.data;
+    if (courseData.boolean) {
+      return courseData.courseData;
+    } else {
+      console.error(courseData.error);
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error(error.response.data);
+    } else {
+      console.error(`Something went wrong ${error}`);
+    }
+  }
+}
+
+// console.log(await getCourseByCourseCode("CS_546"));
+
 const data = {
-  name: "Root",
+  name: "CS",
   children: [
     { name: "Child 1" },
     {
       name: "Child 2",
       children: [{ name: "Grandchild 1" }, { name: "Grandchild 2" }],
     },
+    {
+      name: "Child3",
+      children: [
+        { name: "demo1", children: { name: "hello" } },
+        { name: "demo2" },
+      ],
+    },
   ],
 };
+
+async function getUserTree(userID) {
+  try {
+    let response = await axios.get(
+      `http://localhost:3000/ap/getTree/${userID}`
+    );
+    console.log(response);
+  } catch (error) {}
+}
+
+async function addCourseToTree(courseCode) {
+  let courseData = await getCourseByCourseCode(courseCode);
+  if (courseData.prerequisite.length !== 0) {
+  } else {
+    tree.children.push({ name: courseData.courseCode });
+  }
+}
+
+async function addCourseButton(courseName, courseCode) {
+  const courseList = document.getElementById("courses");
+  if (courseList) {
+    const courseButton = document.createElement("button");
+    courseButton.id = "course-btn";
+    courseButton.onclick(await addCourseToTree(courseCode));
+    courseList.appendChild();
+  }
+}
+
 async function chart() {
   function drag(simulation) {
     function dragstarted(event, d) {
@@ -34,8 +107,8 @@ async function chart() {
       .on("end", dragended);
   }
   // Specify the chart’s dimensions.
-  const width = 928;
-  const height = 600;
+  const width = 700;
+  const height = 500;
 
   // Compute the graph and start the force simulation.
   const root = d3.hierarchy(data);
@@ -62,8 +135,8 @@ async function chart() {
     .attr("width", width)
     .attr("height", height)
     .attr("viewBox", [-width / 2, -height / 2, width, height])
-    .attr("style", "max-width: 100%; height: auto;")
-    .attr("style", "border: 1px solid black;");
+    .attr("style", "max-width: 100%; height: 100%;");
+  // .attr("style", "border: 1px solid black;");
 
   // Append links.
   const link = svg
@@ -118,85 +191,14 @@ async function chart() {
   return svg.node();
 }
 
-async function treeChart() {
-  const width = 928;
-  const height = 600;
-
-  // Define the tree data structure
-  const root = d3.hierarchy(data);
-  const treeLayout = d3.tree().size([height, width - 160]);
-  treeLayout(root);
-
-  const nodes = root.descendants();
-  const links = root.links();
-
-  // Create the SVG container
-  const svg = d3
-    .create("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("viewBox", [-width / 2, -height / 2, width, height]);
-
-  // Append links (edges)
-  svg
-    .append("g")
-    .attr("stroke", "#999")
-    .attr("stroke-opacity", 0.6)
-    .selectAll("line")
-    .data(links)
-    .join("line")
-    .attr("x1", (d) => d.source.x)
-    .attr("y1", (d) => d.source.y)
-    .attr("x2", (d) => d.target.x)
-    .attr("y2", (d) => d.target.y);
-
-  // Append nodes (circles)
-  const node = svg
-    .append("g")
-    .attr("fill", "#fff")
-    .attr("stroke", "#000")
-    .attr("stroke-width", 1.5)
-    .selectAll("circle")
-    .data(nodes)
-    .join("circle")
-    .attr("fill", (d) => (d.children ? null : "#000"))
-    .attr("stroke", (d) => (d.children ? null : "#fff"))
-    .attr("r", 3.5);
-
-  // Append text labels for nodes
-  svg
-    .append("g")
-    .selectAll("text")
-    .data(nodes)
-    .join("text")
-    .attr("dy", -10)
-    .attr("x", 6)
-    .attr("text-anchor", "middle")
-    .text((d) => d.data.name);
-
-  console.log(svg);
-  // Return the SVG node properly
-  return svg.node(); // Ensure this returns the SVG element
-}
-
 async function renderChart() {
   document.addEventListener("DOMContentLoaded", async function () {
     // Get and append the first chart (svgNode)
     const svgNode = await chart();
-    const mainElement = document.querySelector("main");
+    const mainElement = document.getElementById("chart");
 
     if (mainElement) {
       mainElement.appendChild(svgNode); // Append the first chart to 'main' element
-    } else {
-      console.error("The 'main' element was not found in the DOM.");
-    }
-
-    // Get and append the tree chart (treeSvgNode)
-    const treeSvgNode = await treeChart();
-    console.log(treeSvgNode);
-
-    if (mainElement) {
-      mainElement.appendChild(treeSvgNode); // Append the second chart to 'main' element
     } else {
       console.error("The 'main' element was not found in the DOM.");
     }
