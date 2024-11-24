@@ -27,12 +27,14 @@ body {
   width: 25%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   border: 1px solid black;
 }
 
 #course-list {
   display: flex;
-  align-items: flex-start; /* Explicit and predictable */
+  align-items: center; /* Explicit and predictable */
   justify-content: center; /* Adjust as per need */
   width: 100%;
   margin: 2px;
@@ -40,9 +42,16 @@ body {
 }
 
 #courses {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   font-size: 1.2rem;
+  gap: 10px;
 }
 
-#courses li {
+.course-btn {
+  width: 200px;
+  padding: 3px;
   margin: 3px;
 }

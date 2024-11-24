@@ -1,10 +1,17 @@
-// import { getCourseByCourseCode } from "../../data/academic_planner.js";
+// Global Variable
+let flag = false;
+let showTree = {};
 
+// API
 async function getAllCourses() {
   try {
     let response = await axios.get("http://localhost:3000/ap/getCourse");
     const courseData = response.data;
-    return courseData;
+    if (!Object.keys(courseData).includes("error")) {
+      return courseData;
+    } else {
+      console.error(courseData.error);
+    }
   } catch (error) {
     if (error.response) {
       console.error(error.response.data);
@@ -17,10 +24,10 @@ async function getAllCourses() {
 async function getCourseByCourseCode(courseCode) {
   try {
     let response = await axios.get(
-      `http://localhost:3000/ap/addCourse/${courseCode}`
+      `http://localhost:3000/ap/getCourse/${courseCode}`
     );
     const courseData = response.data;
-    if (courseData.boolean) {
+    if (!Object.keys(courseData).includes("error")) {
       return courseData.courseData;
     } else {
       console.error(courseData.error);
@@ -34,54 +41,157 @@ async function getCourseByCourseCode(courseCode) {
   }
 }
 
-// console.log(await getCourseByCourseCode("CS_546"));
-
-const data = {
-  name: "CS",
-  children: [
-    { name: "Child 1" },
-    {
-      name: "Child 2",
-      children: [{ name: "Grandchild 1" }, { name: "Grandchild 2" }],
-    },
-    {
-      name: "Child3",
-      children: [
-        { name: "demo1", children: { name: "hello" } },
-        { name: "demo2" },
-      ],
-    },
-  ],
-};
+async function getAllCorePathCourses() {
+  try {
+    let response = await axios.get(
+      "http://localhost:3000/ap/getCorePathCourses"
+    );
+    let courseData = response.data;
+    if (!Object.keys(courseData).includes("error")) {
+      return courseData;
+    } else {
+      console.error(courseData.error);
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error(error.response.data);
+    } else {
+      console.error(`Something went wrong ${error}`);
+    }
+  }
+}
 
 async function getUserTree(userID) {
   try {
     let response = await axios.get(
       `http://localhost:3000/ap/getTree/${userID}`
     );
-    console.log(response);
-  } catch (error) {}
-}
-
-async function addCourseToTree(courseCode) {
-  let courseData = await getCourseByCourseCode(courseCode);
-  if (courseData.prerequisite.length !== 0) {
-  } else {
-    tree.children.push({ name: courseData.courseCode });
+    const treeData = response.data;
+    if (!Object.keys(treeData).includes("error")) {
+      return treeData.tree;
+    } else {
+      console.error(treeData.error);
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error(error.response.data);
+    } else {
+      console.error(`Something went wrong ${error}`);
+    }
   }
 }
 
-async function addCourseButton(courseName, courseCode) {
+async function addTree(userId, tree) {
+  try {
+    let response = await axios.put(`http://localhost:3000/ap/addTree`, {
+      userId,
+      tree,
+    });
+    console.log(`addTree response: ${response}`);
+    if (response.data.success) {
+      console.log(`addTree response.data.message: ${response.data.message}`);
+    } else {
+      console.error(response.data.message);
+    }
+  } catch (error) {
+    console.error(`Something went wrong ${error}`);
+  }
+}
+
+// Logic
+
+async function showCoursePath(courseCode) {
+  // Fetch course data
+  let courseData = await getCourseByCourseCode(courseCode);
+  let allCourseData = await getAllCourses();
+  let allCourses = allCourseData.data;
+
+  // Initialize the tree
+  let tempTree = { name: "CS", children: [] };
+  let coreCourse = { name: courseData.courseCode, children: [] };
+  tempTree.children.push(coreCourse);
+
+  // Recursive function to add courses
+  function addCourse(obj) {
+    // Find prerequisites for the current course
+    let preReq = allCourses
+      .filter((course) => course.prerequisite.includes(obj.name))
+      .flatMap((course) => course.courseCode); // Assuming `prerequisite` is an array
+    // Add prerequisites as children
+    for (let courseCode of preReq) {
+      let childObj = { name: courseCode, children: [] };
+      obj.children.push(childObj);
+      addCourse(childObj); // Recursively add child nodes
+    }
+  }
+
+  // Start building the tree
+  addCourse(coreCourse);
+
+  // Return the constructed tree
+  return tempTree;
+}
+
+// console.log(await showCoursePath("CS_546"));
+
+async function onHoverShowTree(courseCode) {
+  let tempTree = await showCoursePath(courseCode); // get temp tree
+  let mainTree = await getUserTree("123"); // get main tree
+  let mainTreeChild = mainTree.children; // main tree child
+  let tempTreeChildren = tempTree.children;
+  if (mainTreeChild.length === 0) {
+    mainTree.children = tempTreeChildren;
+  } else {
+    for (let child_1 of treeChild) {
+      for (let child_2 of tempTreeChildren) {
+        if (child_1.name !== child_2.name) {
+          mainTree.children.push(child_2);
+        }
+      }
+    }
+  }
+  flag = true;
+  console.log("result tree", JSON.stringify(mainTree));
+  return mainTree;
+}
+
+async function addCourseButton(courseName, courseCode, userId) {
   const courseList = document.getElementById("courses");
   if (courseList) {
     const courseButton = document.createElement("button");
-    courseButton.id = "course-btn";
-    courseButton.onclick(await addCourseToTree(courseCode));
-    courseList.appendChild();
+    const hiddenPTag = document.createElement("p");
+    hiddenPTag.textContent = courseCode;
+    hiddenPTag.id = "hidden-p-tag";
+    courseButton.className = "course-btn";
+    courseButton.id = courseCode;
+    courseButton.textContent = `${courseName} - ${courseCode}`;
+    hiddenPTag.style.display = "none";
+    courseButton.addEventListener("click", async () => {
+      try {
+        let tree = await onHoverShowTree(courseCode);
+        await addTree(userId, tree);
+      } catch (error) {
+        console.error("Error adding course tree:", error);
+      }
+    });
+    courseButton.addEventListener("mouseenter", async (event) => {
+      const hiddentCourseCode = courseButton.querySelector("p").innerText;
+      await renderHoverTree(hiddentCourseCode);
+      await renderChart(hiddentCourseCode);
+    });
+    courseButton.addEventListener("mouseleave", async (event) => {
+      flag = false;
+
+      await renderChart();
+    });
+
+    courseList.appendChild(courseButton);
+    courseButton.appendChild(hiddenPTag);
   }
 }
 
-async function chart() {
+// Chart
+async function chart(data) {
   function drag(simulation) {
     function dragstarted(event, d) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -111,6 +221,12 @@ async function chart() {
   const height = 500;
 
   // Compute the graph and start the force simulation.
+  let demo = {
+    name: "CS",
+    children: [
+      { name: "CS_546", children: [{ name: "CS_547", children: [] }] },
+    ],
+  };
   const root = d3.hierarchy(data);
   const links = root.links();
   const nodes = root.descendants();
@@ -191,18 +307,49 @@ async function chart() {
   return svg.node();
 }
 
-async function renderChart() {
-  document.addEventListener("DOMContentLoaded", async function () {
+// Rendering
+
+async function renderCourses() {
+  let coreCourse = await getAllCorePathCourses();
+  for (let course of coreCourse) {
+    await addCourseButton(course.courseName, course.courseCode, "123");
+  }
+}
+
+async function renderHoverTree(courseCode) {
+  return await onHoverShowTree(courseCode);
+}
+
+async function renderChart(courseCode) {
+  async function addingChart(courseCode) {
     // Get and append the first chart (svgNode)
-    const svgNode = await chart();
+    let data;
+    if (!courseCode) {
+      data = await getUserTree("123");
+    }
+    if (flag) {
+      data = await renderHoverTree(courseCode);
+    } else {
+      data = await getUserTree("123");
+    }
+    const svgNode = await chart(data);
     const mainElement = document.getElementById("chart");
 
     if (mainElement) {
+      mainElement.innerHTML = ""; // Reset Chart
       mainElement.appendChild(svgNode); // Append the first chart to 'main' element
     } else {
       console.error("The 'main' element was not found in the DOM.");
     }
-  });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", async function () {
+      await addingChart(courseCode);
+    });
+  } else {
+    await addingChart(courseCode);
+  }
 }
 
-renderChart();
+await renderCourses();
+await renderChart();

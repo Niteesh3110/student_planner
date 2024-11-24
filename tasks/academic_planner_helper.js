@@ -11,7 +11,6 @@ export async function validateCourseCode(courseCode) {
   }
   if (courseCode.includes("_")) {
     let courseCodeBreakDownList = courseCode.split("_");
-    console.log(courseCodeBreakDownList);
     if (courseCodeBreakDownList[0] !== "CS")
       return { boolean: false, error: "Invalid Course Code" };
     if (
