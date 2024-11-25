@@ -12,7 +12,10 @@ const rewriteUnsupportedBrowserMethods = (req, res, next) => {
   next();
 };
 
-app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
+app.engine(
+  "handlebars",
+  exphbs.engine({ defaultLayout: "main", partialsDir: "views/partials" })
+);
 
 app.use("/public", express.static("public"));
 app.use(express.json());

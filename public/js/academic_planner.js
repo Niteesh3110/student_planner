@@ -374,7 +374,6 @@ async function chart(data, userId) {
           d.parent.data.name === "CS"
       )
     ) // Exclude the cross button for the root node ("CS") and for nodes that have children
-
     .join("text")
     .attr("class", "cross")
     .attr("dy", -10)
@@ -382,6 +381,7 @@ async function chart(data, userId) {
     .attr("fill", "black")
     .attr("font-size", "17px")
     .attr("cursor", "pointer")
+    .attr("style", "border: 1px solid black")
     .text("x")
     .on("click", async (event, d) => {
       console.log(d.data.name);
