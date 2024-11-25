@@ -66,6 +66,26 @@ export async function getAllCorePathCourses() {
   }
 }
 
+export async function checkDuplicate(courseCode, userId) {
+  try {
+    let checkIfTreeExists = await treeCol.findOne({ userId: userId });
+    if (!checkIfTreeExists) {
+      return { boolean: false, message: "User not found" };
+    }
+    let checkIfDuplicateExists = await treeCol.findOne({
+      userId: userId,
+      "tree.children": { $elemMatch: { name: courseCode } },
+    });
+    if (checkIfDuplicateExists) {
+      return { boolean: true, message: "Course Tree Already Exists" };
+    } else {
+      return { boolean: false, message: "Course Tree Does Not Exists" };
+    }
+  } catch (error) {
+    return { boolean: false, message: `Something went wrong ${error}` };
+  }
+}
+
 export async function addTree(userId, tree) {
   try {
     console.log("data file", userId);

@@ -98,6 +98,42 @@ async function addTree(userId, tree) {
   }
 }
 
+async function checkDuplicate(courseCode, userId) {
+  try {
+    let response = await axios.get(
+      `http://localhost:3000/ap/checkDuplicate?courseCode=${courseCode}&userId=${userId}`
+    );
+    console.log(response);
+    const responseStatus = response.status;
+    const responseData = response.data;
+    console.log(responseData);
+    if (responseData.boolean && responseStatus === 200) {
+      console.log(responseData.message); // Course Exists
+      return responseData.boolean; // True
+    }
+    if (!responseData.boolean && responseStatus === 200) {
+      console.log(responseData.message); // Course Does Not Exists
+      return responseData.boolean; // False
+    }
+    if (!responseData.boolean && responseStatus === 404) {
+      console.log(response.message); // User not found
+      return response.boolean; // False
+    }
+    if (!responseData.boolean && responseStatus === 500) {
+      console.log(responseData.message); // Internal Server Error
+      return false;
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error(error.response.data);
+      return false;
+    } else {
+      console.log(`Something went wrong: ${error}`);
+      return false;
+    }
+  }
+}
+
 // Logic
 
 async function showCoursePath(courseCode) {
@@ -142,7 +178,7 @@ async function onHoverShowTree(courseCode) {
   if (mainTreeChild.length === 0) {
     mainTree.children = tempTreeChildren;
   } else {
-    for (let child_1 of treeChild) {
+    for (let child_1 of mainTreeChild) {
       for (let child_2 of tempTreeChildren) {
         if (child_1.name !== child_2.name) {
           mainTree.children.push(child_2);
@@ -150,6 +186,17 @@ async function onHoverShowTree(courseCode) {
       }
     }
   }
+  // Removing duplicate keys
+  // Reference: https://stackoverflow.com/questions/45439961/remove-duplicate-values-from-an-array-of-objects-in-javascript
+  mainTree["children"] = mainTree.children.reduce((unique, o) => {
+    if (
+      !unique.some((obj) => obj.name === o.name && obj.children === o.children)
+    ) {
+      unique.push(o);
+    }
+    return unique;
+  }, []);
+
   flag = true;
   console.log("result tree", JSON.stringify(mainTree));
   return mainTree;
@@ -169,12 +216,18 @@ async function addCourseButton(courseName, courseCode, userId) {
     courseButton.addEventListener("click", async () => {
       try {
         let tree = await onHoverShowTree(courseCode);
+        if (await checkDuplicate(courseCode, userId)) {
+          return console.log("Course Already Exists");
+        }
         await addTree(userId, tree);
       } catch (error) {
         console.error("Error adding course tree:", error);
       }
     });
     courseButton.addEventListener("mouseenter", async (event) => {
+      if (await checkDuplicate(courseCode, userId)) {
+        return console.log("Course Already Exists");
+      }
       const hiddentCourseCode = courseButton.querySelector("p").innerText;
       await renderHoverTree(hiddentCourseCode);
       await renderChart(hiddentCourseCode);
@@ -217,8 +270,8 @@ async function chart(data) {
       .on("end", dragended);
   }
   // Specify the chart’s dimensions.
-  const width = 700;
-  const height = 500;
+  const width = 1100;
+  const height = 100;
 
   // Compute the graph and start the force simulation.
   let demo = {
@@ -241,7 +294,7 @@ async function chart(data) {
         .distance(100)
         .strength(2)
     )
-    .force("charge", d3.forceManyBody().strength(-500))
+    .force("charge", d3.forceManyBody().strength(-1000))
     .force("x", d3.forceX())
     .force("y", d3.forceY());
 
@@ -251,7 +304,7 @@ async function chart(data) {
     .attr("width", width)
     .attr("height", height)
     .attr("viewBox", [-width / 2, -height / 2, width, height])
-    .attr("style", "max-width: 100%; height: 100%;");
+    .attr("style", "max-width: 100%; height: 100%; border: 1px solid black;");
   // .attr("style", "border: 1px solid black;");
 
   // Append links.
@@ -326,12 +379,14 @@ async function renderChart(courseCode) {
     let data;
     if (!courseCode) {
       data = await getUserTree("123");
-    }
-    if (flag) {
-      data = await renderHoverTree(courseCode);
     } else {
-      data = await getUserTree("123");
+      if (flag) {
+        data = await renderHoverTree(courseCode);
+      } else {
+        data = await getUserTree("123");
+      }
     }
+
     const svgNode = await chart(data);
     const mainElement = document.getElementById("chart");
 
@@ -351,5 +406,9 @@ async function renderChart(courseCode) {
   }
 }
 
-await renderCourses();
-await renderChart();
+async function main() {
+  await renderCourses();
+  await renderChart();
+}
+
+await main();

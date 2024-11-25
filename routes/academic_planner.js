@@ -6,6 +6,7 @@ import {
   getUserTree,
   getAllCorePathCourses,
   addTree,
+  checkDuplicate,
 } from "../data/academic_planner.js";
 
 router.route("/").get(async (req, res) => {
@@ -98,6 +99,32 @@ router.route("/addTree").put(async (req, res) => {
     return res.status(500).json({
       boolean: false,
       error: `Something went wrong ${error}`,
+    });
+  }
+});
+
+router.route("/checkDuplicate").get(async (req, res) => {
+  try {
+    const { courseCode, userId } = req.query;
+    let result = await checkDuplicate(courseCode, userId);
+    if (result.error === "") {
+      return res
+        .status(404)
+        .json({ boolean: result.boolean, message: result.message });
+    }
+    if (result.boolean) {
+      return res
+        .status(200)
+        .json({ boolean: result.boolean, message: result.message });
+    } else {
+      return res
+        .status(200)
+        .json({ boolean: result.boolean, message: result.message });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      boolean: false,
+      message: `Something went wrong ${error}`,
     });
   }
 });
