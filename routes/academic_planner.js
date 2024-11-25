@@ -7,6 +7,7 @@ import {
   getAllCorePathCourses,
   addTree,
   checkDuplicate,
+  removeCourseTree,
 } from "../data/academic_planner.js";
 
 router.route("/").get(async (req, res) => {
@@ -107,7 +108,7 @@ router.route("/checkDuplicate").get(async (req, res) => {
   try {
     const { courseCode, userId } = req.query;
     let result = await checkDuplicate(courseCode, userId);
-    if (result.error === "") {
+    if (result.error === "User not found") {
       return res
         .status(404)
         .json({ boolean: result.boolean, message: result.message });
@@ -126,6 +127,28 @@ router.route("/checkDuplicate").get(async (req, res) => {
       boolean: false,
       message: `Something went wrong ${error}`,
     });
+  }
+});
+
+router.route("/deleteCourse").get(async (req, res) => {
+  try {
+    const { userId, courseCode } = req.query;
+    let response = await removeCourseTree(userId, courseCode);
+    if (response.boolean) {
+      return res
+        .status(200)
+        .json({ boolean: response.boolean, error: response.error });
+    } else {
+      if (response.error === "Cannot remove course course not found")
+        return res.status(404).json({ boolean: false, error: response.error });
+      if (response.error === "Course Removal Failed")
+        return res.status(400).json({ boolean: false, error: response.error });
+      return res.status(500).json({ boolean: false, error: response.error });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ boolean: false, error: `Something went wrong ${error}` });
   }
 });
 

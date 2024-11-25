@@ -103,7 +103,6 @@ async function checkDuplicate(courseCode, userId) {
     let response = await axios.get(
       `http://localhost:3000/ap/checkDuplicate?courseCode=${courseCode}&userId=${userId}`
     );
-    console.log(response);
     const responseStatus = response.status;
     const responseData = response.data;
     console.log(responseData);
@@ -131,6 +130,27 @@ async function checkDuplicate(courseCode, userId) {
       console.log(`Something went wrong: ${error}`);
       return false;
     }
+  }
+}
+
+async function deleteCourseTree(userId, courseCode) {
+  try {
+    let response = await axios.get(
+      `http://localhost:3000/ap/deleteCourse?userId=${userId}&courseCode=${courseCode}`
+    );
+    console.log(response);
+    const responseData = response.data;
+    const responseStatus = response.status;
+    if (responseData.boolean && responseStatus === 200)
+      return responseData.boolean;
+    if (!responseData.boolean && responseStatus === 400)
+      console.log(responseData.error);
+    if (!responseData.boolean && responseStatus === 404)
+      console.error(responseData.error);
+    if (!responseData.boolean && responseStatus === 500)
+      console.error(responseData.error);
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -244,7 +264,7 @@ async function addCourseButton(courseName, courseCode, userId) {
 }
 
 // Chart
-async function chart(data) {
+async function chart(data, userId) {
   function drag(simulation) {
     function dragstarted(event, d) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -342,6 +362,33 @@ async function chart(data) {
     .attr("text-anchor", "middle") // Center the text horizontally
     .text((d) => d.data.name); // Set the label text to the node's name
 
+  const cross = svg
+    .append("g")
+    .selectAll("text.cross")
+    .data(
+      nodes.filter(
+        (d) =>
+          d.data.name !== "CS" && // Exclude the root nodes
+          (!d.children || d.children.length > 0) && // Include nodes that have children
+          d.parent && // include if the node has a parent and that parent is the root node
+          d.parent.data.name === "CS"
+      )
+    ) // Exclude the cross button for the root node ("CS") and for nodes that have children
+
+    .join("text")
+    .attr("class", "cross")
+    .attr("dy", -10)
+    .attr("x", 20)
+    .attr("fill", "black")
+    .attr("font-size", "17px")
+    .attr("cursor", "pointer")
+    .text("x")
+    .on("click", async (event, d) => {
+      console.log(d.data.name);
+      console.log(await deleteCourseTree(userId, d.data.name));
+      window.location.reload();
+    });
+
   simulation.on("tick", () => {
     link
       .attr("x1", (d) => d.source.x)
@@ -353,6 +400,9 @@ async function chart(data) {
 
     // Update label positions to follow nodes
     label.attr("x", (d) => d.x).attr("y", (d) => d.y);
+
+    // Update cross button position
+    cross.attr("x", (d) => d.x + 20).attr("y", (d) => d.y - 20);
   });
 
   //   invalidation.then(() => simulation.stop());
@@ -387,7 +437,7 @@ async function renderChart(courseCode) {
       }
     }
 
-    const svgNode = await chart(data);
+    const svgNode = await chart(data, "123");
     const mainElement = document.getElementById("chart");
 
     if (mainElement) {

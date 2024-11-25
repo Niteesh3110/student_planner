@@ -105,6 +105,29 @@ export async function addTree(userId, tree) {
   }
 }
 
+export async function removeCourseTree(userId, courseCode) {
+  try {
+    let checkValueExists = await treeCol.findOne({
+      userId: userId,
+      "tree.children": { $elemMatch: { name: courseCode } },
+    });
+    if (!checkValueExists) {
+      return { boolean: false, error: "Cannot remove course course not found" };
+    }
+    let result = await treeCol.updateOne(
+      { userId: userId },
+      { $pull: { "tree.children": { name: courseCode } } }
+    );
+    console.log("Course Remove Callback Data", result);
+    if (result.acknowledged && result.modifiedCount === 1) {
+      return { boolean: true, error: "Course Removed" };
+    } else {
+      return { boolean: false, error: "Course Removal Failed" };
+    }
+  } catch (error) {
+    return { boolean: false, error: `Something went wrong ${error}` };
+  }
+}
 // console.log(await getAllCorePathCourses());
 // console.log(await getCourseByCourseCode("CS_546"));
 // console.log(await getCourseNameAndPrereq());
