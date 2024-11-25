@@ -10,9 +10,75 @@ body {
   box-sizing: border-box;
 }
 
-#nav-bar {
+/* Navbar Styling */
+.navbar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #333;
+  color: white;
+  position: sticky; /* Keeps the navbar at the top while scrolling */
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 1200px;
+}
+
+/* Navbar Logo */
+/* .navbar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+} */
+
+/* Navbar Menu */
+.navbar-menu {
+  display: flex;
+  list-style: none;
+  padding: 0px;
+}
+
+.navbar-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-link:hover {
+  background-color: #555;
+  border-radius: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar-menu {
+    flex-direction: column;
+    display: none; /* Hidden by default */
+    background-color: #333;
+    position: absolute;
+    top: 100%; /* Positioned just below the navbar */
+    right: 0;
+    left: 0;
+    width: 100%;
+    padding: 0px;
+    margin: 0;
+  }
+
+  .navbar-menu.active {
+    display: flex; /* Display when toggled */
+  }
+
+  .navbar-link {
+    text-align: center;
+    width: 100%;
+  }
 }
 
 #container {
