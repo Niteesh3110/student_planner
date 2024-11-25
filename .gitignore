@@ -6,8 +6,8 @@ logs
 *.log
 npm-debug.log*
 
-# # Environment files
-# .env
+# Environment files
+.env
 
 # Operating system files
 .DS_Store
