@@ -141,16 +141,23 @@ async function deleteCourseTree(userId, courseCode) {
     console.log(response);
     const responseData = response.data;
     const responseStatus = response.status;
+    console.log(!responseData.boolean && responseStatus === 404);
     if (responseData.boolean && responseStatus === 200)
       return responseData.boolean;
     if (!responseData.boolean && responseStatus === 400)
       console.log(responseData.error);
-    if (!responseData.boolean && responseStatus === 404)
+    if (!responseData.boolean && responseStatus === 404) {
       console.error(responseData.error);
+      return { boolean: false, error: "Course not found" };
+    }
     if (!responseData.boolean && responseStatus === 500)
       console.error(responseData.error);
   } catch (error) {
-    console.error(error);
+    console.error(error.response.status);
+    if (error.response.status === 404) {
+      console.error(error);
+      return { boolean: false, error: "Course not found" };
+    }
   }
 }
 
@@ -235,6 +242,13 @@ async function addCourseButton(courseName, courseCode, userId) {
     hiddenPTag.style.display = "none";
     courseButton.addEventListener("click", async () => {
       try {
+        let fetchTree = await getUserTree("123");
+        if (fetchTree) {
+          if (fetchTree.children.length === 3)
+            alert(
+              "Cannot add more than 3 core courses as per university guidelines. Please remove course courses"
+            );
+        }
         let tree = await onHoverShowTree(courseCode);
         if (await checkDuplicate(courseCode, userId)) {
           return console.log("Course Already Exists");
@@ -264,7 +278,7 @@ async function addCourseButton(courseName, courseCode, userId) {
 }
 
 // Chart
-async function chart(data, userId) {
+async function chart(data, userId, color) {
   function drag(simulation) {
     function dragstarted(event, d) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -294,12 +308,12 @@ async function chart(data, userId) {
   const height = 100;
 
   // Compute the graph and start the force simulation.
-  let demo = {
-    name: "CS",
-    children: [
-      { name: "CS_546", children: [{ name: "CS_547", children: [] }] },
-    ],
-  };
+  // let demo = {
+  //   name: "CS",
+  //   children: [
+  //     { name: "CS_546", children: [{ name: "CS_547", children: [] }] },
+  //   ],
+  // };
   const root = d3.hierarchy(data);
   const links = root.links();
   const nodes = root.descendants();
@@ -312,7 +326,7 @@ async function chart(data, userId) {
         .forceLink(links)
         .id((d) => d.id)
         .distance(100)
-        .strength(2)
+        .strength(0.5)
     )
     .force("charge", d3.forceManyBody().strength(-1000))
     .force("x", d3.forceX())
@@ -334,7 +348,8 @@ async function chart(data, userId) {
     .attr("stroke-opacity", 0.6)
     .selectAll("line")
     .data(links)
-    .join("line");
+    .join("line")
+    .attr("stroke-dashoffset", 0);
 
   // Append nodes.
   const node = svg
@@ -345,9 +360,25 @@ async function chart(data, userId) {
     .selectAll("circle")
     .data(nodes)
     .join("circle")
-    .attr("fill", (d) => (d.children ? null : "#000"))
-    .attr("stroke", (d) => (d.children ? null : "#fff"))
-    .attr("r", 4)
+    .attr("fill", (d) =>
+      d.data.name === "CS"
+        ? "#FFE31A"
+        : d.parent && d.parent.data.name === "CS"
+        ? "#7ED4AD"
+        : d.children
+        ? null
+        : "#000"
+    )
+    .attr("stroke", (d) => {
+      d.data.name === "CS"
+        ? "#FFE31A"
+        : d.parent && d.parent.data.name === "CS"
+        ? "#7ED4AD"
+        : d.children
+        ? null
+        : "#fff";
+    })
+    .attr("r", 0)
     .call(drag(simulation));
 
   node.append("title").text((d) => d.data.name);
@@ -368,10 +399,12 @@ async function chart(data, userId) {
     .data(
       nodes.filter(
         (d) =>
-          d.data.name !== "CS" && // Exclude the root nodes
-          (!d.children || d.children.length > 0) && // Include nodes that have children
-          d.parent && // include if the node has a parent and that parent is the root node
-          d.parent.data.name === "CS"
+          (d.data.name !== "CS" && // Exclude the root nodes
+            d.children &&
+            d.children.length > 0) ||
+          (d.parent && d.parent.data.name === "CS") // Include nodes that have children
+        // d.parent && // include if the node has a parent and that parent is the root node
+        // d.parent.data.name === "CS" // Include if the direct parent is the root node
       )
     ) // Exclude the cross button for the root node ("CS") and for nodes that have children
     .join("text")
@@ -385,8 +418,14 @@ async function chart(data, userId) {
     .text("x")
     .on("click", async (event, d) => {
       console.log(d.data.name);
-      console.log(await deleteCourseTree(userId, d.data.name));
-      window.location.reload();
+      let deleteCourseResult = await deleteCourseTree(userId, d.data.name);
+      console.log(deleteCourseResult.boolean);
+      if (deleteCourseResult.boolean) {
+        window.location.reload();
+      } else {
+        d3.select("#chart svg").remove();
+        window.location.reload();
+      }
     });
 
   simulation.on("tick", () => {
@@ -394,9 +433,23 @@ async function chart(data, userId) {
       .attr("x1", (d) => d.source.x)
       .attr("y1", (d) => d.source.y)
       .attr("x2", (d) => d.target.x)
+      .attr("y2", (d) => d.target.y)
+      .attr("x1", (d) => d.source.x)
+      .attr("y1", (d) => d.source.y)
+      .attr("x2", (d) => d.source.x) // Start links with zero length
+      .attr("y2", (d) => d.source.y) // Start links with zero length
+      .transition() // Animate the links
+      .duration(70) // Animation duration in milliseconds
+      .attr("x2", (d) => d.target.x)
       .attr("y2", (d) => d.target.y);
 
-    node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+    node
+      .attr("cx", (d) => d.x)
+      .attr("cy", (d) => d.y)
+      .transition()
+      .delay(200) // Delay until link animations complete
+      .duration(45) // Animation duration in milliseconds
+      .attr("r", 4); // Final radius of nodes
 
     // Update label positions to follow nodes
     label.attr("x", (d) => d.x).attr("y", (d) => d.y);
@@ -456,9 +509,56 @@ async function renderChart(courseCode) {
   }
 }
 
+async function chartLegend(color) {
+  const svgLegend = d3
+    .select("#chart-legend")
+    .append("svg")
+    .attr("width", 200) // Set width as needed for the legend
+    .attr("height", 50)
+    .style("display", "block") // Make SVG block-level for centering
+    .style("margin", "0 auto"); // Center horizontally inside the parent div
+
+  // Create a node (circle) for the legend
+  svgLegend
+    .append("circle")
+    .attr("cx", 20) // X position of the center of the circle
+    .attr("cy", 25) // Y position of the center of the circle
+    .attr("r", 4) // Radius of the circle
+    .attr("fill", "#7ED4AD") // Fill color of the node
+    .attr("stroke", "#000") // Border color of the node
+    .attr("stroke-width", 2);
+
+  // Add a label next to the node and center it horizontally
+  svgLegend
+    .append("text")
+    .attr("x", 30) // Position the text next to the node
+    .attr("y", 25) // Vertically align the text with the circle
+    .attr("dy", ".35em") // Vertically center the text within the block
+    .attr("text-anchor", "start") // Align text to the left (next to the circle)
+    .text("Core Course") // The label text
+    .style("font-size", "14px")
+    .style("fill", "#333"); // Text color
+}
+
 async function main() {
+  // let colorList = [
+  //   "#000",
+  //   "#d55e00",
+  //   "#cc79a7",
+  //   "#0072b2",
+  //   "#f0e442",
+  //   "#009e73",
+  // ];
+  // let pointer = 0;
+  // let color = "";
+  // async function changeColor() {}
+  // let changeColorBtn = document.getElementById("change-color-btn");
+  // changeColorBtn.addEventListener("click", async () => {
+  //   await changeColor();
+  // });
   await renderCourses();
   await renderChart();
+  await chartLegend();
 }
 
 await main();

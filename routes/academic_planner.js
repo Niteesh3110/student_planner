@@ -134,6 +134,7 @@ router.route("/deleteCourse").get(async (req, res) => {
   try {
     const { userId, courseCode } = req.query;
     let response = await removeCourseTree(userId, courseCode);
+    console.log(response);
     if (response.boolean) {
       return res
         .status(200)
