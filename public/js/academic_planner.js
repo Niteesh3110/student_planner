@@ -236,7 +236,7 @@ async function addCourseButton(courseName, courseCode, userId) {
     const hiddenPTag = document.createElement("p");
     hiddenPTag.textContent = courseCode;
     hiddenPTag.id = "hidden-p-tag";
-    courseButton.className = "course-btn";
+    courseButton.className = "btn btn-outline-secondary btn-sm my-1";
     courseButton.id = courseCode;
     courseButton.textContent = `${courseName} - ${courseCode}`;
     hiddenPTag.style.display = "none";
@@ -337,8 +337,8 @@ async function chart(data, userId, color) {
     .create("svg")
     .attr("width", width)
     .attr("height", height)
-    .attr("viewBox", [-width / 2, -height / 2, width, height])
-    .attr("style", "max-width: 100%; height: 100%; border: 1px solid black;");
+    .attr("viewBox", [-width / 2, -height / 2, width, height]);
+  // .attr("style", "max-width: 100%; height: 90%; border: 1px solid black;");
   // .attr("style", "border: 1px solid black;");
 
   // Append links.
@@ -433,22 +433,22 @@ async function chart(data, userId, color) {
       .attr("x1", (d) => d.source.x)
       .attr("y1", (d) => d.source.y)
       .attr("x2", (d) => d.target.x)
-      .attr("y2", (d) => d.target.y)
-      .attr("x1", (d) => d.source.x)
-      .attr("y1", (d) => d.source.y)
-      .attr("x2", (d) => d.source.x) // Start links with zero length
-      .attr("y2", (d) => d.source.y) // Start links with zero length
-      .transition() // Animate the links
-      .duration(70) // Animation duration in milliseconds
-      .attr("x2", (d) => d.target.x)
       .attr("y2", (d) => d.target.y);
+    // .attr("x1", (d) => d.source.x)
+    // .attr("y1", (d) => d.source.y)
+    // .attr("x2", (d) => d.source.x) // Start links with zero length
+    // .attr("y2", (d) => d.source.y) // Start links with zero length
+    // .transition() // Animate the links
+    // .duration(50) // Animation duration in milliseconds
+    // .attr("x2", (d) => d.target.x)
+    // .attr("y2", (d) => d.target.y);
 
     node
       .attr("cx", (d) => d.x)
       .attr("cy", (d) => d.y)
       .transition()
-      .delay(200) // Delay until link animations complete
-      .duration(45) // Animation duration in milliseconds
+      .delay(250) // Delay until link animations complete
+      .duration(50) // Animation duration in milliseconds
       .attr("r", 4); // Final radius of nodes
 
     // Update label positions to follow nodes
