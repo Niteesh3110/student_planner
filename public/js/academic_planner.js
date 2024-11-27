@@ -236,7 +236,7 @@ async function addCourseButton(courseName, courseCode, userId) {
     const hiddenPTag = document.createElement("p");
     hiddenPTag.textContent = courseCode;
     hiddenPTag.id = "hidden-p-tag";
-    courseButton.className = "btn btn-outline-secondary btn-sm my-1";
+    courseButton.className = "btn btn-outline-secondary btn-sm my-1 w-100";
     courseButton.id = courseCode;
     courseButton.textContent = `${courseName} - ${courseCode}`;
     hiddenPTag.style.display = "none";
