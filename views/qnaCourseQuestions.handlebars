@@ -1,0 +1,112 @@
+<main class="h-auto w-100" id="main-qna">
+  <section
+    class="d-flex flex-column justify-content-start align-content-start"
+    id="qna"
+  >
+    <div class="d-flex justify-content-between align-items-center px-3">
+      <h3 class="m-3">
+        {{courseDisplay.courseNameDisplay}}
+        -
+        {{courseDisplay.courseCodeDisplay}}
+      </h3>
+      <button
+        type="button"
+        class="btn btn-outline-dark btn-md m-3 text-center fs-4 fw-lighter text-secondary rounded-pill"
+        style="width: 10%;"
+        data-bs-toggle="modal"
+        data-bs-target="#exampleModal"
+      >+</button>
+    </div>
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="exampleModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Create Post</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label
+                for="exampleFormControlInput1"
+                class="form-label"
+              >Question</label>
+              <input
+                type="text"
+                class="form-control"
+                id="exampleFormControlInput1"
+                placeholder="Question?"
+              />
+            </div>
+            <div class="mb-3">
+              <label
+                for="exampleFormControlTextarea1"
+                class="form-label"
+              >Description</label>
+              <textarea
+                class="form-control"
+                id="exampleFormControlTextarea1"
+                rows="3"
+                placeholder="Breifly Describe Your Question...."
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary">POST</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="border border-start-0 border-end-0 m-3">
+      <div class="card m-4 border-0 mx-2 my-4 bg-white">
+        <div class="card-header border-0 bg-white">
+          User Name
+        </div>
+        <div class="card-body p-4 bg-white">
+          <h5 class="card-title">Question</h5>
+          <p class="card-text">Description</p>
+          <a
+            href="#"
+            class="btn btn-outline-primary rounded-pill p-2"
+          >Answers</a>
+        </div>
+      </div>
+    </div>
+    <div class="border border-start-0 border-end-0 m-3">
+      <div class="card m-4 border-0 mx-2 my-4 bg-white">
+        <div class="card-header border-0 bg-white" id="question-user-name">
+          User Name
+        </div>
+        <div class="card-body p-4 bg-white">
+          <h5 class="card-title" id="question">Question</h5>
+          <p class="card-text" id="question-description">Description</p>
+          <a
+            href="/qna/answers/{{questionId}}"
+            class="btn btn-outline-primary rounded-pill p-2"
+            id="ans-btn"
+          >Answers</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="d-flex flex-column gap-3 p-5" id="qna-course-list">
+    {{#each coursesData}}
+      <a
+        class="btn btn-outline-primary"
+        href="/qna/questions/{{courseCode}}/{{courseName}}"
+        type="button"
+      >{{this.courseName}}</a>
+    {{/each}}
+  </section>
+</main>
