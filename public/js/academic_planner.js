@@ -305,7 +305,7 @@ async function chart(data, userId, color) {
   }
   // Specify the chart’s dimensions.
   const width = 1100;
-  const height = 100;
+  const height = 900;
 
   // Compute the graph and start the force simulation.
   // let demo = {

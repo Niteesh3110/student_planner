@@ -1,3 +1,14 @@
-<main>
-  <a href="qna/ans/CS_546">CS_546</a>
+<main class="w-100 h-100">
+  <div
+    class="w-100 h-100 d-flex flex-wrap gap-2 justify-content-center align-content-center"
+  >
+    {{#each courses}}
+      <a
+        href="qna/ans/{{courseCode}}/{{courseName}}"
+        class="btn btn-outline-primary h-auto text-center"
+        style="width: 20%;"
+        role="button"
+      >{{courseName}}</a>
+    {{/each}}
+  </div>
 </main>

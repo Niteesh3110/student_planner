@@ -31,9 +31,12 @@ export async function getCourseNameAndPrereq() {
       .toArray();
     if (result) {
       return { boolean: true, data: result };
+    } else {
+      return { boolean: false, error: "Could not find courses and prereq" };
     }
   } catch (error) {
     console.error(error);
+    return { boolean: false, error: `Something went wrong ${error}` };
   }
 }
 

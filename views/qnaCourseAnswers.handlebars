@@ -1,7 +1,14 @@
 <main class="h-auto w-100" id="main-qna">
-  <section class="d-flex flex-column justify-content-center" id="qna">
+  <section
+    class="d-flex flex-column justify-content-start align-content-start"
+    id="qna"
+  >
     <div class="d-flex justify-content-between align-items-center px-3">
-      <h3 class="m-3">{{courseCode}} {{courseName}}</h3>
+      <h3 class="m-3">
+        {{courseDisplay.courseNameDisplay}}
+        -
+        {{courseDisplay.courseCodeDisplay}}
+      </h3>
       <button
         type="button"
         class="btn btn-outline-dark btn-md m-3 text-center fs-4 fw-lighter text-secondary rounded-pill"
@@ -93,8 +100,12 @@
     </div>
   </section>
   <section class="d-flex flex-column gap-3 p-5" id="qna-course-list">
-    <a class="btn btn-primary" href="#" type="button">COURSE 1</a>
-    <a class="btn btn-primary" href="#" type="button">COURSE 1</a>
-    <a class="btn btn-primary" href="#" type="button">COURSE 1</a>
+    {{#each coursesData}}
+      <a
+        class="btn btn-outline-primary"
+        href="/qna/ans/{{courseCode}}/{{courseName}}"
+        type="button"
+      >{{this.courseName}}</a>
+    {{/each}}
   </section>
 </main>
