@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 
-dotenv.config({ path: "/Users/nits/Desktop/student_planner/.env" });
+dotenv.config({ path: ".env" });
 
 const mongoUrl = process.env.MONGODB_URL;
 

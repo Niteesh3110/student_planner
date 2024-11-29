@@ -19,7 +19,6 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
   };
   let coursesData = await getCourseNameAndPrereq();
   if (coursesData.boolean) {
-    console.log(coursesData.data);
     return res.status(200).render("qnaCourseQuestions", {
       courseDisplay: courseDisplay,
       coursesData: coursesData.data,
@@ -27,6 +26,8 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
   }
 });
 
-router.route("/ans/:courseCode/");
+router.route("/ans").get(async (req, res) => {
+  return res.status(200).render("qnaCoursesAnswers");
+});
 
 export default router;
