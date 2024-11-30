@@ -4,7 +4,7 @@
     id="qna"
   >
     <div class="d-flex justify-content-between align-items-center px-3">
-      <h3 class="m-3">
+      <h3 class="m-3" id="course-name-code">
         {{courseDisplay.courseNameDisplay}}
         -
         {{courseDisplay.courseCodeDisplay}}
@@ -25,6 +25,7 @@
       tabindex="-1"
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
+      aria-modal="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
@@ -105,4 +106,5 @@
       >{{this.courseName}}</a>
     {{/each}}
   </section>
+  <script type="module" src="/public/js/qna.js"></script>
 </main>
