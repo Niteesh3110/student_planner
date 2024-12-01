@@ -23,8 +23,7 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
   try {
     const response = await axios.get("http://localhost:3000/qna/questions/get");
     if (response.data.boolean) {
-      let questions = [];
-      questions = response.data.data;
+      let questionData = response.data.data.response;
       let courseCodeDisplay = req.params.courseCode;
       let courseNameDisplay = req.params.courseName;
       let courseDisplay = {
@@ -32,11 +31,12 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
         courseNameDisplay: courseNameDisplay,
       };
       let coursesData = await getCourseNameAndPrereq();
+      console.log(questionData);
       if (coursesData.boolean) {
         return res.status(200).render("qnaCourseQuestions", {
           courseDisplay: courseDisplay,
           coursesData: coursesData.data,
-          questions: questions,
+          questionsData: questionData,
         });
       }
     } else {
@@ -77,7 +77,6 @@ router.route("/questions/post").post(async (req, res) => {
       courseCode,
       createdAt
     );
-    console.log(response);
     if (response.boolean) {
       return res
         .status(200)

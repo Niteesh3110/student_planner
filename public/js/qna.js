@@ -64,5 +64,3 @@ addQuestionBtn.addEventListener("click", async () => {
     console.log(`title or description missing`);
   }
 });
-
-// Render Questions using handlebars

@@ -74,28 +74,37 @@
         </div>
       </div>
     </div>
-    <div class="border border-start-0 border-end-0 m-3">
-      <div class="card m-4 border-0 mx-2 my-4 bg-white">
-        <div class="card-header border-0 bg-white" id="question-user-name">
-          User Name
+    {{#if questionsData}}
+      {{#each questionsData}}
+        <div class="border border-start-0 border-end-0 m-3">
+          <div class="card m-4 border-0 mx-2 my-4 bg-white">
+            <div class="card-header border-0 bg-white" id="question-user-name">
+              {{this.userName}}
+            </div>
+            {{#each this.questions}}
+              <div class="card-body p-4 bg-white">
+                <h5 class="card-title" id="question">{{title}}</h5>
+                <p
+                  class="card-text"
+                  id="question-description"
+                >{{description}}</p>
+                <p class="" id="question-creation-date">{{createdAt}}</p>
+                <a
+                  href="/qna/ans"
+                  {{!-- href="/qna/answers/{{questionId}}" --}}
+                  class="btn btn-outline-primary rounded-pill p-1"
+                  id="ans-btn"
+                >Answers</a>
+                <button
+                  class="btn btn-outline-secondary rounded-pill p-1"
+                  title="Me too"
+                ><i class="bi bi-person-raised-hand"></i>{{meTooCount}}</button>
+              </div>
+            {{/each}}
+          </div>
         </div>
-        <div class="card-body p-4 bg-white">
-          <h5 class="card-title" id="question">Question</h5>
-          <p class="card-text" id="question-description">Description</p>
-          <p class="" id="question-creation-date">Asked On</p>
-          <a
-            href="/qna/ans"
-            {{!-- href="/qna/answers/{{questionId}}" --}}
-            class="btn btn-outline-primary rounded-pill p-1"
-            id="ans-btn"
-          >Answers</a>
-          <button
-            class="btn btn-outline-secondary rounded-pill p-1"
-            title="Me too"
-          ><i class="bi bi-person-raised-hand"></i>1</button>
-        </div>
-      </div>
-    </div>
+      {{/each}}
+    {{/if}}
   </section>
   <section class="d-flex flex-column gap-3 p-5 w-25" id="qna-course-list">
     {{#each coursesData}}

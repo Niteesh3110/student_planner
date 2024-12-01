@@ -52,7 +52,6 @@ export async function getAllQuestions() {
         questions: 1,
       })
       .toArray();
-    console.log(response);
     if (response) {
       return { boolean: true, response: response };
     } else {
