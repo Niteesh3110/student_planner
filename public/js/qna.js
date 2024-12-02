@@ -30,6 +30,22 @@ async function addQuestionApiCall(
   }
 }
 
+async function updateMeToo(questionId) {
+  try {
+    let response = await axios.patch(
+      `http://localhost:3000/qna/questions/meToo/${questionId}`
+    );
+    if (response.data.boolean) {
+      return true;
+    } else {
+      false;
+    }
+  } catch (error) {
+    console.error(`Something went wrong in updateMeToo ${error}`);
+    return false;
+  }
+}
+
 // Question onCLick Event
 async function addQuestion() {
   const title = document.getElementById("question-title").value;
@@ -65,4 +81,45 @@ addQuestionBtn.addEventListener("click", async () => {
   }
 });
 
-// Render Questions using handlebars
+// meToo Button Update
+document.addEventListener("click", async (event) => {
+  try {
+    // Checking if me-too button exists
+    if (event.target.closest("#me-too")) {
+      // getting the parent div which has "data-question-id" attribute
+      const cardBody = event.target.closest("[data-question-id]");
+      if (cardBody) {
+        // Getting the questionId
+        const questionId = cardBody.getAttribute("data-question-id");
+        const meTooButton = cardBody.querySelector("#me-too");
+        let isLiked = localStorage.getItem("isLiked");
+        if (isLiked === null) {
+          isLiked = false;
+          localStorage.setItem("isLiked", isLiked);
+        } else {
+          isLiked = isLiked === "true";
+        }
+        if (!isLiked) {
+          const result = await updateMeToo(questionId);
+          isLiked = !isLiked;
+          if (result) {
+            meTooButton.classList.toggle("btn btn-secondary rounded-pill p-1");
+            // Fetching the span that consists the count
+            const meTooCountSpan = cardBody.querySelector("#me-too-count");
+            if (meTooCountSpan) {
+              // Updating the count
+              let currentCount = parseInt(meTooCountSpan.textContent, 10) || 0;
+              meTooCountSpan.textContent = currentCount + 1;
+            }
+          } else {
+            console.log("Could not update");
+          }
+        } else {
+          //
+        }
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+});

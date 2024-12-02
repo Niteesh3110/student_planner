@@ -244,10 +244,12 @@ async function addCourseButton(courseName, courseCode, userId) {
       try {
         let fetchTree = await getUserTree("123");
         if (fetchTree) {
-          if (fetchTree.children.length === 3)
+          if (fetchTree.children.length === 3) {
             alert(
               "Cannot add more than 3 core courses as per university guidelines. Please remove course courses"
             );
+            return;
+          }
         }
         let tree = await onHoverShowTree(courseCode);
         if (await checkDuplicate(courseCode, userId)) {

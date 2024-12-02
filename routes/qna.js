@@ -2,8 +2,11 @@ import express from "express";
 import axios from "axios";
 const router = express.Router();
 import { getCourseNameAndPrereq } from "../data/academic_planner.js";
-import { addQuestionByUserId, getAllQuestions } from "../data/qna.js";
-import { question } from "readline-sync";
+import {
+  addQuestionByUserId,
+  getAllQuestions,
+  updateMeToo,
+} from "../data/qna.js";
 
 router.route("/").get(async (req, res) => {
   try {
@@ -23,8 +26,7 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
   try {
     const response = await axios.get("http://localhost:3000/qna/questions/get");
     if (response.data.boolean) {
-      let questions = [];
-      questions = response.data.data;
+      let questionData = response.data.data.response;
       let courseCodeDisplay = req.params.courseCode;
       let courseNameDisplay = req.params.courseName;
       let courseDisplay = {
@@ -36,7 +38,7 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
         return res.status(200).render("qnaCourseQuestions", {
           courseDisplay: courseDisplay,
           coursesData: coursesData.data,
-          questions: questions,
+          questionsData: questionData,
         });
       }
     } else {
@@ -77,7 +79,6 @@ router.route("/questions/post").post(async (req, res) => {
       courseCode,
       createdAt
     );
-    console.log(response);
     if (response.boolean) {
       return res
         .status(200)
@@ -98,6 +99,7 @@ router.route("/questions/post").post(async (req, res) => {
 router.route("/questions/get").get(async (req, res) => {
   try {
     let response = await getAllQuestions();
+    // console.log(response);
     if (response.boolean) {
       return res
         .status(200)
@@ -111,6 +113,23 @@ router.route("/questions/get").get(async (req, res) => {
     return res.status(500).json({
       boolean: false,
       error: `Something went wrong in /questions/get route ${error}`,
+    });
+  }
+});
+
+router.route("/questions/meToo/:questionId").patch(async (req, res) => {
+  try {
+    let questionId = req.params.questionId;
+    let result = await updateMeToo(questionId);
+    if (result.boolean) {
+      return res.status(200).json({ boolean: true, message: "meTooUpdated" });
+    } else {
+      return res.status(200).json({ boolean: false, error: result.error });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      boolean: false,
+      error: `Something went wrong in updating meToo ${error}`,
     });
   }
 });

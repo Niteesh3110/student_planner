@@ -33,13 +33,24 @@ export async function addQuestionByUserId(
       },
     ],
   };
-  console.log(inputObj);
-  let result = await qCol.insertOne(inputObj);
-  console.log(result);
-  if (result.acknowledged) {
-    return { boolean: true, questionId };
+  let checkIfUserExists = await qCol.findOne({ userId });
+  if (!checkIfUserExists) {
+    let result = await qCol.insertOne(inputObj);
+    if (result.acknowledged) {
+      return { boolean: true, questionId };
+    } else {
+      return { boolean: false, error: "Could not add the question" };
+    }
   } else {
-    return { boolean: false, error: "Could not add the question" };
+    let result = await qCol.updateOne(
+      { userId: userId },
+      { $push: { questions: inputObj.questions[0] } }
+    );
+    if (result.acknowledged && result.modifiedCount === 1) {
+      return { boolean: true, questionId };
+    } else {
+      return { boolean: false, error: "Could not add the questions" };
+    }
   }
 }
 
@@ -52,11 +63,41 @@ export async function getAllQuestions() {
         questions: 1,
       })
       .toArray();
-    console.log(response);
+    for (let qData of response) {
+      for (let data of qData.questions) {
+        data.questionId = data.questionId.toString();
+      }
+    }
     if (response) {
       return { boolean: true, response: response };
     } else {
       return { boolean: false, error: "Could not get questions" };
+    }
+  } catch (error) {
+    return { boolean: false, error: `Something went wrong ${error}` };
+  }
+}
+
+export async function updateMeToo(questionId) {
+  try {
+    let result = await qCol.updateOne(
+      {
+        questions: {
+          $elemMatch: {
+            questionId: ObjectId.createFromHexString(questionId),
+          },
+        },
+      },
+      { $inc: { "questions.$.meTooCount": 1 } }
+    );
+    if (
+      result.acknowledged &&
+      result.modifiedCount === 1 &&
+      result.matchedCount === 1
+    ) {
+      return { boolean: true };
+    } else {
+      return { boolean: false, error: "Could not update me too" };
     }
   } catch (error) {
     return { boolean: false, error: `Something went wrong ${error}` };
