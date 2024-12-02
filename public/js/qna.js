@@ -92,18 +92,19 @@ document.addEventListener("click", async (event) => {
         // Getting the questionId
         const questionId = cardBody.getAttribute("data-question-id");
         const meTooButton = cardBody.querySelector("#me-too");
-        let isLiked = localStorage.getItem("isLiked");
-        if (isLiked === null) {
-          isLiked = false;
-          localStorage.setItem("isLiked", isLiked);
-        } else {
-          isLiked = isLiked === "true";
-        }
+        const savedState = JSON.parse(localStorage.getItem("isLiked")) || false;
+        const isLiked = savedState === "true";
+        meTooButton.setAttribute("data-state", isLiked ? "on" : "off");
+        meTooButton.classList.toggle("btn-secondary", isLiked);
+        meTooButton.classList.toggle("btn-outlined-secondary", !isLiked);
         if (!isLiked) {
           const result = await updateMeToo(questionId);
-          isLiked = !isLiked;
           if (result) {
-            meTooButton.classList.toggle("btn btn-secondary rounded-pill p-1");
+            const newState = meTooButton.getAttribute("data-state") === "off";
+            meTooButton.setAttribute("data-state", newState ? "on" : "off");
+            localStorage.setItem("isLiked", newState);
+            meTooButton.classList.toggle("btn-secondary", newState);
+            meTooButton.classList.toggle("btn-outlined-secondary", newState);
             // Fetching the span that consists the count
             const meTooCountSpan = cardBody.querySelector("#me-too-count");
             if (meTooCountSpan) {
@@ -115,7 +116,7 @@ document.addEventListener("click", async (event) => {
             console.log("Could not update");
           }
         } else {
-          //
+          console.log("disliked");
         }
       }
     }

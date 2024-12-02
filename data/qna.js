@@ -78,6 +78,40 @@ export async function getAllQuestions() {
   }
 }
 
+export async function getQuestionsByCourseCode(courseCode) {
+  try {
+    let resultArray = [];
+    let result = await qCol
+      .find(
+        {
+          questions: { $elemMatch: { courseCode: courseCode } },
+        },
+        { "questions.$": 1 }
+      )
+      .toArray();
+    for (let data of result) {
+      for (let questions of data.questions) {
+        if (questions.courseCode === courseCode) {
+          questions.userName = data.userName;
+          questions.questionId === questions.questionId.toString();
+          resultArray.push(questions);
+        }
+      }
+    }
+    console.log(resultArray);
+    if (result && result.length > 0) {
+      return { boolean: true, data: resultArray };
+    } else {
+      return {
+        boolean: false,
+        error: `Could not find questions with courseCode ${courseCode}`,
+      };
+    }
+  } catch (error) {
+    return { boolean: false, error: `Something went wrong ${error}` };
+  }
+}
+
 export async function updateMeToo(questionId) {
   try {
     let result = await qCol.updateOne(
