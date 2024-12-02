@@ -2,8 +2,11 @@ import express from "express";
 import axios from "axios";
 const router = express.Router();
 import { getCourseNameAndPrereq } from "../data/academic_planner.js";
-import { addQuestionByUserId, getAllQuestions } from "../data/qna.js";
-import { question } from "readline-sync";
+import {
+  addQuestionByUserId,
+  getAllQuestions,
+  updateMeToo,
+} from "../data/qna.js";
 
 router.route("/").get(async (req, res) => {
   try {
@@ -31,7 +34,6 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
         courseNameDisplay: courseNameDisplay,
       };
       let coursesData = await getCourseNameAndPrereq();
-      console.log(questionData);
       if (coursesData.boolean) {
         return res.status(200).render("qnaCourseQuestions", {
           courseDisplay: courseDisplay,
@@ -97,6 +99,7 @@ router.route("/questions/post").post(async (req, res) => {
 router.route("/questions/get").get(async (req, res) => {
   try {
     let response = await getAllQuestions();
+    // console.log(response);
     if (response.boolean) {
       return res
         .status(200)
@@ -110,6 +113,23 @@ router.route("/questions/get").get(async (req, res) => {
     return res.status(500).json({
       boolean: false,
       error: `Something went wrong in /questions/get route ${error}`,
+    });
+  }
+});
+
+router.route("/questions/meToo/:questionId").patch(async (req, res) => {
+  try {
+    let questionId = req.params.questionId;
+    let result = await updateMeToo(questionId);
+    if (result.boolean) {
+      return res.status(200).json({ boolean: true, message: "meTooUpdated" });
+    } else {
+      return res.status(200).json({ boolean: false, error: result.error });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      boolean: false,
+      error: `Something went wrong in updating meToo ${error}`,
     });
   }
 });

@@ -82,7 +82,11 @@
               {{this.userName}}
             </div>
             {{#each this.questions}}
-              <div class="card-body p-4 bg-white">
+              <div
+                class="card-body p-4 bg-white"
+                id="q-id"
+                data-question-id={{questionId}}
+              >
                 <h5 class="card-title" id="question">{{title}}</h5>
                 <p
                   class="card-text"
@@ -98,7 +102,10 @@
                 <button
                   class="btn btn-outline-secondary rounded-pill p-1"
                   title="Me too"
-                ><i class="bi bi-person-raised-hand"></i>{{meTooCount}}</button>
+                  id="me-too"
+                ><i class="bi bi-person-raised-hand"></i><span
+                    id="me-too-count"
+                  >{{meTooCount}}</span></button>
               </div>
             {{/each}}
           </div>
