@@ -6,6 +6,7 @@ import {
   addQuestionByUserId,
   getAllQuestions,
   updateMeToo,
+  getQuestionsByCourseCode,
 } from "../data/qna.js";
 
 router.route("/").get(async (req, res) => {
@@ -24,11 +25,13 @@ router.route("/").get(async (req, res) => {
 
 router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
   try {
-    const response = await axios.get("http://localhost:3000/qna/questions/get");
-    if (response.data.boolean) {
-      let questionData = response.data.data.response;
-      let courseCodeDisplay = req.params.courseCode;
-      let courseNameDisplay = req.params.courseName;
+    // const response = await axios.get("http://localhost:3000/qna/questions/get");
+    let courseCodeDisplay = req.params.courseCode;
+    let courseNameDisplay = req.params.courseName;
+    const result = await getQuestionsByCourseCode(courseCodeDisplay);
+    console.log("2", result);
+    if (result.boolean) {
+      let questionData = result.data;
       let courseDisplay = {
         courseCodeDisplay: courseCodeDisplay,
         courseNameDisplay: courseNameDisplay,
@@ -42,22 +45,18 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
         });
       }
     } else {
-      if (Object.keys(response.data).includes("error")) {
-        // DO NOTHING
-      } else {
-        let courseCodeDisplay = req.params.courseCode;
-        let courseNameDisplay = req.params.courseName;
-        let courseDisplay = {
-          courseCodeDisplay: courseCodeDisplay,
-          courseNameDisplay: courseNameDisplay,
-        };
-        let coursesData = await getCourseNameAndPrereq();
-        if (coursesData.boolean) {
-          return res.status(200).render("qnaCourseQuestions", {
-            courseDisplay: courseDisplay,
-            coursesData: coursesData.data,
-          });
-        }
+      let courseCodeDisplay = req.params.courseCode;
+      let courseNameDisplay = req.params.courseName;
+      let courseDisplay = {
+        courseCodeDisplay: courseCodeDisplay,
+        courseNameDisplay: courseNameDisplay,
+      };
+      let coursesData = await getCourseNameAndPrereq();
+      if (coursesData.boolean) {
+        return res.status(200).render("qnaCourseQuestions", {
+          courseDisplay: courseDisplay,
+          coursesData: coursesData.data,
+        });
       }
     }
   } catch (error) {
