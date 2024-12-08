@@ -98,7 +98,7 @@ export async function getQuestionsByCourseCode(courseCode) {
         }
       }
     }
-    console.log(resultArray);
+    // console.log(resultArray);
     if (result && result.length > 0) {
       return { boolean: true, data: resultArray };
     } else {
