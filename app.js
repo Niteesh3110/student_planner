@@ -1,4 +1,5 @@
 import express from "express";
+import session from "express-session";
 const app = express();
 import configRoutes from "./routes/index.js";
 import exphbs from "express-handlebars";
