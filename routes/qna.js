@@ -29,7 +29,6 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
     let courseCodeDisplay = req.params.courseCode;
     let courseNameDisplay = req.params.courseName;
     const result = await getQuestionsByCourseCode(courseCodeDisplay);
-    console.log("2", result);
     if (result.boolean) {
       let questionData = result.data;
       let courseDisplay = {
