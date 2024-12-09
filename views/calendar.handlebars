@@ -1,0 +1,48 @@
+<div class="calendar-container">
+    <button id="today-button">Today</button>
+    <button id="create-button">Create</button>
+    <div id="calendar"></div>
+</div>
+
+<!-- FullCalendar CSS and JS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay' // Switch views
+            },
+            dateClick: function (info) {
+                alert(`Clicked on: ${info.dateStr}`);
+            },
+            events: [
+                { title: 'Meeting', start: '2024-12-10T10:30:00', end: '2024-12-10T11:30:00' },
+                { title: 'Lunch', start: '2024-12-11T12:00:00' }
+            ]
+        });
+
+        calendar.render();
+
+        // Today button functionality
+        document.getElementById('today-button').addEventListener('click', () => {
+            calendar.today();
+        });
+
+        // Create button functionality
+        document.getElementById('create-button').addEventListener('click', () => {
+            const title = prompt('Event Title:');
+            const date = prompt('Event Date (YYYY-MM-DD):');
+            if (title && date) {
+                calendar.addEvent({ title: title, start: date });
+                alert('Event added!');
+            }
+        });
+    });
+</script>
