@@ -1,1 +1,130 @@
-<h1>sign up</h1>
+<section class="">
+  <div
+    class="px-4 py-5 px-md-5 text-center text-lg-start"
+    style="background-color: hsl(0, 0%, 96%)"
+  >
+    <div class="container">
+      <div class="row gx-lg-5 align-items-center">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <h1 class="my-5 display-3 fw-bold ls-tight">
+            Student Planner
+            <br />
+            <span class="text-primary">Simplifying Student Life</span>
+          </h1>
+          <p style="color: hsl(217, 10%, 50.8%)">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eveniet,
+            itaque accusantium odio, soluta, corrupti aliquam quibusdam tempora
+            at cupiditate quis eum maiores libero veritatis? Dicta facilis sint
+            aliquid ipsum atque?
+          </p>
+        </div>
+
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <div class="card">
+            <div class="card-body py-5 px-md-5">
+              <h2 class="fw-bold mb-2 text-uppercase text-center">SIGN UP</h2>
+              <p class="text-black-50 mb-4 text-center">Please complete the form</p>
+              <form id="signup-form" method="post" action="/signup">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <div data-mdb-input-init class="form-outline">
+                      <input
+                        type="text"
+                        id="firstName"
+                        name="firstName"
+                        class="form-control"
+                        placeholder="First Name"
+                        aria-label="firstName"
+                      />
+                      {{! <label class="form-label" for="firstName">First name</label> }}
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <div data-mdb-input-init class="form-outline">
+                      <input
+                        type="text"
+                        id="lastName"
+                        name="lastName"
+                        class="form-control"
+                        placeholder="Last name"
+                        aria-label="lastName"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div data-mdb-input-init class="form-outline mb-3">
+                  <input
+                    type="text"
+                    id="userId"
+                    name="userId"
+                    class="form-control"
+                    placeholder="User Name"
+                    aria-label="userId"
+                  />
+                </div>
+
+                <div data-mdb-input-init class="form-outline mb-3">
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control"
+                    placeholder="Email"
+                    aria-label="email"
+                  />
+                </div>
+
+                <!-- Password input -->
+                <div data-mdb-input-init class="form-outline mb-3">
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Password"
+                    aria-label="password"
+                  />
+                </div>
+
+                <div data-mdb-input-init class="form-outline mb-3">
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    class="form-control"
+                    placeholder="Confirm Password"
+                    aria-label="ConfirmPassword"
+                  />
+                </div>
+
+                <!-- Submit button -->
+                <button
+                  type="submit"
+                  data-mdb-button-init
+                  data-mdb-ripple-init
+                  class="btn btn-primary btn-block mb-2"
+                >
+                  Sign up
+                </button>
+
+                <!-- Register buttons -->
+                <div class="text-center">
+                  <p>or sign in</p>
+                  <a
+                    role="button"
+                    href="/signin"
+                    data-mdb-button-init
+                    data-mdb-ripple-init
+                    class="btn btn-primary btn-floating mx-1"
+                  >Sign In
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

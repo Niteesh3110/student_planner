@@ -1,1 +1,94 @@
-<h1>Sign In</h1>
+<section class="">
+  <div
+    class="px-4 py-5 px-md-5 text-center text-lg-start"
+    style="background-color: hsl(0, 0%, 96%)"
+  >
+    <div class="container">
+      <div class="row gx-lg-5 align-items-center">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <h1 class="my-5 display-3 fw-bold ls-tight">
+            Student Planner
+            <br />
+            <span class="text-primary">Simplifying Student Life</span>
+          </h1>
+          <p style="color: hsl(217, 10%, 50.8%)">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eveniet,
+            itaque accusantium odio, soluta, corrupti aliquam quibusdam tempora
+            at cupiditate quis eum maiores libero veritatis? Dicta facilis sint
+            aliquid ipsum atque?
+          </p>
+        </div>
+
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <div class="card">
+            <div class="d-flex flex-column card-body py-5 px-md-5 mt-4">
+              <h2 class="fw-bold mb-2 text-uppercase text-center">SIGN IN</h2>
+              <p class="text-black-50 mb-4 text-center">Please enter your user
+                name and password!</p>
+              <form id="signin-form" method="post" action="/signin">
+                <!-- Email input -->
+                <div data-mdb-input-init class="form-outline mb-4">
+                  <input
+                    type="text"
+                    id="userId"
+                    name="userId"
+                    class="form-control"
+                    placeholder="User Name"
+                    aria-label="userId"
+                  />
+                </div>
+
+                <!-- Password input -->
+                <div data-mdb-input-init class="form-outline mb-4">
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Password"
+                    aria-label="password"
+                  />
+                </div>
+
+                <div class="form-check d-flex justify-content-start mb-4">
+                  <input
+                    class="form-check-input me-2"
+                    type="checkbox"
+                    value=""
+                    id="remember"
+                  />
+                  <label class="form-check-label" for="remember">
+                    Remember Me
+                  </label>
+                </div>
+
+                <!-- Submit button -->
+                <button
+                  type="submit"
+                  data-mdb-button-init
+                  data-mdb-ripple-init
+                  class="btn btn-primary btn-block mb-2"
+                >
+                  Sign in
+                </button>
+
+                <!-- Register buttons -->
+                <div class="text-center">
+                  <p>or sign up</p>
+                  <a
+                    role="button"
+                    href="/signup"
+                    data-mdb-button-init
+                    data-mdb-ripple-init
+                    class="btn btn-primary btn-floating mx-1"
+                  >Sign Up
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
