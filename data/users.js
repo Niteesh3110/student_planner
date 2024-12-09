@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { dbConnection, closeConnection } from "../config/mongoConnection.js";
 import { users } from "../config/mongoCollection.js";
 import {

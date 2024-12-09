@@ -92,32 +92,15 @@ document.addEventListener("click", async (event) => {
         // Getting the questionId
         const questionId = cardBody.getAttribute("data-question-id");
         const meTooButton = cardBody.querySelector("#me-too");
-        const savedState = JSON.parse(localStorage.getItem("isLiked")) || false;
-        const isLiked = savedState === "true";
-        meTooButton.setAttribute("data-state", isLiked ? "on" : "off");
-        meTooButton.classList.toggle("btn-secondary", isLiked);
-        meTooButton.classList.toggle("btn-outlined-secondary", !isLiked);
-        if (!isLiked) {
-          const result = await updateMeToo(questionId);
-          if (result) {
-            const newState = meTooButton.getAttribute("data-state") === "off";
-            meTooButton.setAttribute("data-state", newState ? "on" : "off");
-            localStorage.setItem("isLiked", newState);
-            meTooButton.classList.toggle("btn-secondary", newState);
-            meTooButton.classList.toggle("btn-outlined-secondary", newState);
-            // Fetching the span that consists the count
-            const meTooCountSpan = cardBody.querySelector("#me-too-count");
-            if (meTooCountSpan) {
-              // Updating the count
-              let currentCount = parseInt(meTooCountSpan.textContent, 10) || 0;
-              meTooCountSpan.textContent = currentCount + 1;
-            }
-          } else {
-            console.log("Could not update");
+        const meTooCount = cardBody.querySelector("#me-too-count").value;
+        meTooButton.addEventListener("click", async (e) => {
+          const isPressed = meTooButton.getAttribute("aria-pressed");
+          console.log(isPressed);
+          if (!isPressed) {
+            let meTooCountNumber = meTooCount.parseInt(meTooCount, 10);
+            // Start from here
           }
-        } else {
-          console.log("disliked");
-        }
+        });
       }
     }
   } catch (error) {
