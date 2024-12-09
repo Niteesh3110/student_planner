@@ -2,6 +2,7 @@ import academicPlannerRoute from "./academic_planner.js";
 import homeRoutes from "./home_page_routes.js";
 import qnaRoutes from "./qna.js";
 import calendarRoutes from "./calendar.js";
+import authRoutes from "./auth_routes.js";
 const constructorMethod = (app) => {
   app.use("/", authRoutes);
   app.use("/home", homeRoutes);

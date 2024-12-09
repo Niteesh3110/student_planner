@@ -69,6 +69,7 @@ export function homeMiddleware(req, res, next) {
 }
 
 export async function isLoggedInMiddleware(req, res, next) {
-  res.locals.isLoggedIn = !!req.session.user;
+  //   res.locals.isLoggedIn = !!req.session.user;
+  res.locals.isLoggedIn = true;
   next();
 }
