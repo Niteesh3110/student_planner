@@ -12,10 +12,16 @@
   "author": "ABC",
   "license": "MIT",
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^1.7.9",
+=======
+    "axios": "^1.7.8",
+    "bcrypt": "^5.1.1",
+>>>>>>> d560854e4e62f4a626f4d8798b3273d55895b473
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-handlebars": "^8.0.1",
+    "express-session": "^1.18.1",
     "mongodb": "^6.10.0",
     "nodemon": "^3.1.7"
   }

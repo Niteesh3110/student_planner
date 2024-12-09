@@ -83,8 +83,8 @@ router.route("/getCorePathCourses").get(async (req, res) => {
 router.route("/addTree").put(async (req, res) => {
   try {
     const { userId, tree } = req.body;
-    console.log(`UserId: ${userId}`);
-    console.log(JSON.stringify(tree));
+    // console.log(`UserId: ${userId}`);
+    // console.log(JSON.stringify(tree));
     if (!userId || !tree) {
       return res
         .status(400)
@@ -134,7 +134,7 @@ router.route("/deleteCourse").get(async (req, res) => {
   try {
     const { userId, courseCode } = req.query;
     let response = await removeCourseTree(userId, courseCode);
-    console.log(response);
+    // console.log(response);
     if (response.boolean) {
       return res
         .status(200)
