@@ -14,8 +14,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <title>Student Planner</title>
   </head>
-  <body style="background-color: hsl(0, 0%, 96%)">
-    {{> nav}}
+  <body style="background-color: hsl(0, 0%, 96%);">
+    {{#if isLoggedIn}}
+      {{> nav}}
+    {{/if}}
     {{{body}}}
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

@@ -11,6 +11,7 @@ import {
   academicPlannerMiddleware,
   qnaMiddleware,
   homeMiddleware,
+  isLoggedInMiddleware,
 } from "./middleware.js";
 
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
@@ -44,6 +45,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(rewriteUnsupportedBrowserMethods);
 
+app.use(isLoggedInMiddleware);
 app.use("/", rootMiddleware);
 app.use("/signin", signInMiddleware);
 app.use("/signup", signUpMiddleware);

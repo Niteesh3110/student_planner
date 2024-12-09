@@ -43,6 +43,7 @@ router
       }
       // Need to sanitisen res.status(200).json({ userId, password });
     } catch (error) {
+      console.log(error);
       if (error.status)
         return res.status(error.status).json({ error: error.error });
       return res.status(500).json({ error });
@@ -108,7 +109,7 @@ router.route("/signout").get(async (req, res) => {
       console.log(err);
       return res.status(500).send("Internal Server Error");
     } else {
-      return res.redirect("/signin");
+      return res.status(200).render("signout");
     }
   });
 });
