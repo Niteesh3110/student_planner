@@ -3,6 +3,8 @@ import session from "express-session";
 const app = express();
 import configRoutes from "./routes/index.js";
 import exphbs from "express-handlebars";
+import fileUpload from "express-fileupload";
+
 import {
   rootMiddleware,
   signInMiddleware,
@@ -37,8 +39,20 @@ app.use(
 
 app.engine(
   "handlebars",
-  exphbs.engine({ defaultLayout: "main", partialsDir: "views/partials" })
+  exphbs.engine({ defaultLayout: "main", partialsDir: "views/partials",
+    helpers: {
+      ifEquals: function (a, b, options){ 
+        if (a === b) { 
+          return options.fn(this); 
+          return options.inverse(this); 
+        }
+      }
+    }
+  })
 );
+
+
+app.use(fileUpload());  
 
 app.use("/public", express.static("public"));
 app.use(express.json());
