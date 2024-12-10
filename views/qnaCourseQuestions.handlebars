@@ -79,9 +79,14 @@
         <div class="border border-start-0 border-end-0 m-3">
           <div class="card m-4 border-0 mx-2 my-4">
             <div
-              class="card-header border-0"
+              class="card-header border-0 d-flex justify-content-end align-items-center"
               id="question-user-name"
-            >{{userName}}
+            >
+              {{userName}}
+              <div class="d-flex gap-2" id="del-edit-container">
+                <button class="btn btn-outline-danger btn-sm">DEL</button>
+                <button class="btn btn-outline-warning btn-sm">EDIT</button>
+              </div>
             </div>
             <div
               class="card-body p-4"

@@ -82,28 +82,41 @@ addQuestionBtn.addEventListener("click", async () => {
 });
 
 // meToo Button Update
-document.addEventListener("click", async (event) => {
-  try {
-    // Checking if me-too button exists
-    if (event.target.closest("#me-too")) {
-      // getting the parent div which has "data-question-id" attribute
-      const cardBody = event.target.closest("[data-question-id]");
-      if (cardBody) {
-        // Getting the questionId
-        const questionId = cardBody.getAttribute("data-question-id");
-        const meTooButton = cardBody.querySelector("#me-too");
-        const meTooCount = cardBody.querySelector("#me-too-count").value;
-        meTooButton.addEventListener("click", async (e) => {
-          const isPressed = meTooButton.getAttribute("aria-pressed");
-          console.log(isPressed);
-          if (!isPressed) {
-            let meTooCountNumber = meTooCount.parseInt(meTooCount, 10);
-            // Start from here
+document.addEventListener("DOMContentLoaded", () => {
+  // Adding a click event listener to the document
+  document.addEventListener("click", async (event) => {
+    try {
+      // Checking if me-too button exists
+      if (event.target.closest("#me-too")) {
+        // Getting the parent div which has "data-question-id" attribute
+        const cardBody = event.target.closest("[data-question-id]");
+        if (cardBody) {
+          // Getting the questionId
+          const questionId = cardBody.getAttribute("data-question-id");
+          const meTooButton = cardBody.querySelector("#me-too");
+          const meTooCountElement = cardBody.querySelector("#me-too-count");
+
+          // Parsing current count
+          let meTooCount = parseInt(meTooCountElement.textContent, 10);
+          const isPressed = meTooButton.getAttribute("aria-pressed") === "true";
+
+          // Toggle the aria-pressed attribute and update the count
+          meTooButton.setAttribute("aria-pressed", !isPressed);
+          if (isPressed) {
+            meTooCount++;
+          } else {
+            meTooCount--;
           }
-        });
+
+          // Update the displayed count
+          meTooCountElement.textContent = meTooCount;
+
+          console.log(`Button pressed state: ${!isPressed}`);
+          console.log(`Updated Me-Too count: ${meTooCount}`);
+        }
       }
+    } catch (error) {
+      console.error("An error occurred:", error);
     }
-  } catch (error) {
-    console.error(error);
-  }
+  });
 });
