@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <h1>File Conversion</h1>
+        <h4>Instructions</h4>
+        <ol>
+            <li>Upload a file by clicking "Browse..." and selecting from your device</li>
+            <li>Select the file type you want to convert to</li>
+            <li>Click the "Convert" button and your file will automatically download</li>
+        </ol>
+        <form action="/action_page.php">
+            <input type="file" name="filename">
+        </form>
+        <form>
+            <label for="filetype">Select file type:</label>
+            <select id="filetype" name="filetype">
+                <option value="pdf">Portable Document Format (PDF)</option>
+                <option value="docx">Word Document (DOCX)</option>
+                <option value="txt">Text Document (TXT)</option>
+            </select>
+        </form>
+        <form action="/action_page.php">
+            <input type="submit" value="Convert">
+        </form>
+    </body>
+</html>
