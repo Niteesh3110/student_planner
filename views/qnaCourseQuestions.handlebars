@@ -84,8 +84,14 @@
             >
               {{userName}}
               <div class="d-flex gap-2" id="del-edit-container">
-                <button class="btn btn-outline-danger btn-sm">DEL</button>
-                <button class="btn btn-outline-warning btn-sm">EDIT</button>
+                <button
+                  class="btn btn-outline-danger btn-sm"
+                  id="delete-btn"
+                >DEL</button>
+                <button
+                  class="btn btn-outline-warning btn-sm"
+                  id="edit-btn"
+                >EDIT</button>
               </div>
             </div>
             <div
@@ -106,7 +112,6 @@
               <button
                 class="btn btn-outline-secondary rounded-pill p-1"
                 title="Me too"
-                data-bs-toggle="button"
                 aria-pressed="false"
                 id="me-too"
               >
@@ -131,5 +136,5 @@
       >{{this.courseName}}</a>
     {{/each}}
   </section>
-  <script type="module" src="/public/js/qna.js"></script>
 </main>
+<script type="module" src="/public/js/qna.js"></script>

@@ -30,10 +30,10 @@ async function addQuestionApiCall(
   }
 }
 
-async function updateMeToo(questionId) {
+async function updateMeToo(questionId, func) {
   try {
     let response = await axios.patch(
-      `http://localhost:3000/qna/questions/meToo/${questionId}`
+      `http://localhost:3000/qna/questions/meToo/${func}/${questionId}`
     );
     if (response.data.boolean) {
       return true;
@@ -42,6 +42,35 @@ async function updateMeToo(questionId) {
     }
   } catch (error) {
     console.error(`Something went wrong in updateMeToo ${error}`);
+    return false;
+  }
+}
+
+async function checkIfQuestionLiked(questionId) {
+  try {
+    let response = await axios.get(
+      `http://localhost:3000/qna/questions/meToo/checkMeTooState/${questionId}`
+    );
+    return response.data.boolean;
+  } catch (error) {
+    console.error(`Something went wrong in updateMeToo ${error}`);
+    return false;
+  }
+}
+
+async function deleteQuesiton(questionId) {
+  try {
+    const response = await axios.delete(
+      `http://localhost:3000/qna/questions/delete/${questionId}`
+    );
+    if (response.data.boolean) {
+      return response.data.boolean;
+    } else {
+      console.error(response.data.error);
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
     return false;
   }
 }
@@ -81,42 +110,88 @@ addQuestionBtn.addEventListener("click", async () => {
   }
 });
 
-// meToo Button Update
-document.addEventListener("DOMContentLoaded", () => {
-  // Adding a click event listener to the document
-  document.addEventListener("click", async (event) => {
-    try {
-      // Checking if me-too button exists
-      if (event.target.closest("#me-too")) {
-        // Getting the parent div which has "data-question-id" attribute
-        const cardBody = event.target.closest("[data-question-id]");
-        if (cardBody) {
-          // Getting the questionId
-          const questionId = cardBody.getAttribute("data-question-id");
-          const meTooButton = cardBody.querySelector("#me-too");
-          const meTooCountElement = cardBody.querySelector("#me-too-count");
+// Delete Button
+// START FROM HERE
+document.addEventListener("click", async (event) => {
+  if (event.target.closest("#q-id")) {
+    const cardBody = event.target.closest("[data-question-id]");
+    if (cardBody) {
+      try {
+        const questionId = cardBody.getAttribute("data-question-id");
+        if (await deleteQuesiton(questionId)) {
+          window.location.reload();
+        } else {
+          console.log("Could not delete question"); //CHANGE THIS
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+});
 
-          // Parsing current count
-          let meTooCount = parseInt(meTooCountElement.textContent, 10);
-          const isPressed = meTooButton.getAttribute("aria-pressed") === "true";
+async function updateMeTooCount() {
+  // Update button states on DOM load
+  document.addEventListener("DOMContentLoaded", async () => {
+    const meTooButtonList = document.querySelectorAll("[data-question-id]");
 
-          // Toggle the aria-pressed attribute and update the count
-          meTooButton.setAttribute("aria-pressed", !isPressed);
-          if (isPressed) {
-            meTooCount++;
-          } else {
-            meTooCount--;
-          }
+    for (const buttonContainer of meTooButtonList) {
+      const questionId = buttonContainer.getAttribute("data-question-id");
+      const meTooButton = buttonContainer.querySelector("#me-too");
+      const meTooCountElement = buttonContainer.querySelector("#me-too-count");
 
-          // Update the displayed count
-          meTooCountElement.textContent = meTooCount;
+      if (questionId && meTooButton && meTooCountElement) {
+        const liked = await checkIfQuestionLiked(questionId);
 
-          console.log(`Button pressed state: ${!isPressed}`);
-          console.log(`Updated Me-Too count: ${meTooCount}`);
+        // Update button state
+        if (liked) {
+          meTooButton.setAttribute("aria-pressed", "true");
+          meTooButton.classList.add("active");
+          meTooButton.classList.remove("deactive");
+        } else {
+          meTooButton.setAttribute("aria-pressed", "false");
+          meTooButton.classList.add("deactive");
+          meTooButton.classList.remove("active");
         }
       }
-    } catch (error) {
-      console.error("An error occurred:", error);
     }
+
+    // Add a click event listener
+    document.addEventListener("click", async (event) => {
+      //
+      if (event.target.closest("#me-too")) {
+        const cardBody = event.target.closest("[data-question-id]");
+        if (cardBody) {
+          try {
+            const questionId = cardBody.getAttribute("data-question-id");
+            const meTooButton = cardBody.querySelector("#me-too");
+            const meTooCountElement = cardBody.querySelector("#me-too-count");
+
+            let meTooCount = parseInt(meTooCountElement.textContent, 10);
+            const isPressed =
+              meTooButton.getAttribute("aria-pressed") === "true";
+
+            if (!isPressed && (await updateMeToo(questionId, "inc"))) {
+              meTooCount++;
+              meTooButton.setAttribute("aria-pressed", "true");
+              meTooButton.classList.add("active");
+              meTooButton.classList.remove("deactive");
+            } else if (isPressed && (await updateMeToo(questionId, "dec"))) {
+              meTooCount = Math.max(meTooCount - 1, 0);
+              meTooButton.setAttribute("aria-pressed", "false");
+              meTooButton.classList.add("deactive");
+              meTooButton.classList.remove("active");
+            }
+
+            // Update count
+            meTooCountElement.textContent = meTooCount;
+          } catch (error) {
+            console.error("An error occurred:", error);
+          }
+        }
+      }
+    });
   });
-});
+}
+
+await updateMeTooCount();

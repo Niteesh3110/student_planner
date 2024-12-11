@@ -73,3 +73,8 @@ export async function isLoggedInMiddleware(req, res, next) {
   res.locals.isLoggedIn = true;
   next();
 }
+
+export async function isMeToo(req, res, next) {
+  res.locals.isMeToo = "";
+  next();
+}

@@ -14,6 +14,7 @@ import {
   qnaMiddleware,
   homeMiddleware,
   isLoggedInMiddleware,
+  isMeToo,
 } from "./middleware.js";
 
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
@@ -39,26 +40,28 @@ app.use(
 
 app.engine(
   "handlebars",
-  exphbs.engine({ defaultLayout: "main", partialsDir: "views/partials",
+  exphbs.engine({
+    defaultLayout: "main",
+    partialsDir: "views/partials",
     helpers: {
-      ifEquals: function (a, b, options){ 
-        if (a === b) { 
-          return options.fn(this); 
-          return options.inverse(this); 
+      ifEquals: function (a, b, options) {
+        if (a === b) {
+          return options.fn(this);
+          return options.inverse(this);
         }
-      }
-    }
+      },
+    },
   })
 );
 
-
-app.use(fileUpload());  
+app.use(fileUpload());
 
 app.use("/public", express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(rewriteUnsupportedBrowserMethods);
 
+app.use(isMeToo);
 // app.use(isLoggedInMiddleware);
 // app.use("/", rootMiddleware);
 // app.use("/signin", signInMiddleware);
