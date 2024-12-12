@@ -1,46 +1,38 @@
 import axios from 'axios';
+export { makeAPIRequest, startConversion };
 
-let temp;
+const makeAPIRequest = async () => {
+    var options = {
+        method: 'POST',
+        url: 'https://api.api2convert.com/v2/jobs',
+        headers: {
+            'x-oc-api-key': 'eb13dd06bc02fb0bb95570dd9ce705ba',
+            'Content-Type': 'application/json'
+        },
+        data: {
+            input: [
+                // No input (for inital call)
+            ],
+        }
+    };
 
-let URL = 'https://api.api2convert.com/v2/jobs';
-
-var options = {
-    method: 'POST',
-    url: 'https://api.api2convert.com/v2/jobs',
-    headers: {
-        'x-oc-api-key': 'eb13dd06bc02fb0bb95570dd9ce705ba',
-        'Content-Type': 'application/json'
-    },
-    data: {
-        input: [
-            {
-                type: "remote",
-                source: "https://example-files.online-convert.com/raster%20image/jpg/example_small.jpg"
-            }
-        ],
-        conversion: [
-            {
-                category: "image",
-                target: "png",
-                options: {
-                    // N/A
-                }
-            }
-        ]
-    }
+    axios.request(options)
+        .then(function (response) {
+            console.log(response.data);
+            let result = [response.data.id, response.data.server];
+            return result;
+        })
+        .catch(function (error) {
+            console.error(error);
+        });
 };
 
-axios.request(options)
-    .then(function (response) {
-        temp = response.data;
-        URL = 'https://api.api2convert.com/v2/jobs/' + response.data.id;
-        console.log(response.data);
-    })
-    .catch(function (error) {
-        console.error(error);
-    });
+const startConversion = async (result, file) => {
+    return [result, file, "test"];
+};
 
-var options = {
+
+/*var options = {
     method: 'GET',
     url: URL,
     headers: {
@@ -54,4 +46,4 @@ axios.request(options)
     })
     .catch(function (error) {
         console.error(error);
-    });
+    });*/

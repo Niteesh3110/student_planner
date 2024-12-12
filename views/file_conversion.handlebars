@@ -11,19 +11,9 @@
             <li>Select the file type you want to convert to</li>
             <li>Click the "Convert" button and your file will automatically download</li>
         </ol>
-        <form action="/action_page.php">
-            <input type="file" name="filename">
-        </form>
-        <form>
-            <label for="filetype">Select file type:</label>
-            <select id="filetype" name="filetype">
-                <option value="pdf">Portable Document Format (PDF)</option>
-                <option value="docx">Word Document (DOCX)</option>
-                <option value="txt">Text Document (TXT)</option>
-            </select>
-        </form>
-        <form action="/action_page.php">
-            <input type="submit" value="Convert">
+        <form action="/file_conversion/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file"/>
+            <button type="submit">Convert</button>
         </form>
     </body>
 </html>
