@@ -17,8 +17,7 @@ router
     .route("/upload")
     .post(upload.single("file"), async (req, res) => {
         try {
-            //return res.json({ message: 'File uploaded successfully', filename: req.file});
-            return res.json(await startConversion(await makeAPIRequest(), req.file));
+            return res.json(await startConversion((await makeAPIRequest()), req.file));
         }
         catch (e) {
             return res.status(400).json("No file uploaded");
