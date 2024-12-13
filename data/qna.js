@@ -2,15 +2,39 @@ import mongodb from "mongodb";
 import { ObjectId } from "mongodb";
 import { dbConnection, closeConnection } from "../config/mongoConnection.js";
 import { questions, users } from "../config/mongoCollection.js";
-import { question } from "readline-sync";
 
 const db = await dbConnection();
 const qCol = await questions();
 const userCol = await users();
 
 // Question
-async function getQuestionsByUserId(userId) {
-  // Get Question
+export async function getQuestionsByUserId(userId, questionId) {
+  try {
+    let result = await qCol.findOne(
+      {
+        userId: userId,
+        "questions.quesitonId": questionId,
+      },
+      {
+        "questions.$": 1,
+      }
+    );
+    if (result) {
+      return { boolean: true, status: 200, data: result };
+    } else {
+      return {
+        boolean: false,
+        status: 404,
+        error: "Could not find the answer",
+      };
+    }
+  } catch (error) {
+    return {
+      boolean: false,
+      status: 500,
+      error: `Internal Server Error: ${error}`,
+    };
+  }
 }
 
 export async function addQuestionByUserId(
@@ -94,7 +118,7 @@ export async function getQuestionsByCourseCode(courseCode) {
     for (let data of result) {
       for (let questions of data.questions) {
         if (questions.courseCode === courseCode) {
-          questions.userName = data.userName;
+          questions.userId = data.userId;
           questions.questionId === questions.questionId.toString();
           resultArray.push(questions);
         }
@@ -194,7 +218,6 @@ export async function updateMeToo(userId, questionId, func) {
       );
       console.log("inc", result);
       likedQuestionUpdate = await addLikedQuestion(userId, questionId);
-      console.log(likedQuestionUpdate);
     } else if (func === "dec") {
       result = await qCol.updateOne(
         {
@@ -229,16 +252,29 @@ export async function updateMeToo(userId, questionId, func) {
 
 export async function deleteQuestion(userId, questionId) {
   try {
+    if (
+      !questionId ||
+      typeof questionId !== "string" ||
+      questionId.trim().length === 0
+    ) {
+      throw { status: 400, error: "Invalid question Id" };
+    }
+    if (!userId || typeof userId !== "string" || userId.trim().length === 0) {
+      throw { status: 400, error: "Invalid userID" };
+    }
+    questionId = questionId.trim();
+    questionId = ObjectId.createFromHexString(questionId);
     let checkIfUserAskedTheQuestion = await qCol.findOne({
       userId: userId,
-      questions: { $elemMatch: { questionId } },
+      questions: { $elemMatch: { questionId: questionId } },
     });
+
     if (checkIfUserAskedTheQuestion) {
       const result = await qCol.updateOne(
         { userId: userId },
         { $pull: { questions: { questionId } } }
       );
-      if (result.acknowledged && result.modifiedCount > 1) {
+      if (result.acknowledged && result.modifiedCount === 1) {
         return {
           boolean: true,
           status: 200,
@@ -255,10 +291,47 @@ export async function deleteQuestion(userId, questionId) {
       return { boolean: false, status: 404, error: "User not found" };
     }
   } catch (error) {
+    console.error(error);
     return {
       boolean: false,
       status: 500,
       error: `Something went wrong ${error}`,
     };
   }
+}
+
+// Answer
+// START FROM HERE
+export async function getAnswersByQuestionId(userId, questionId) {
+  try {
+    // let answersList = [];
+    let checkIfUserAskedTheQuestion = await qCol.findOne({
+      userId: userId,
+      questions: { $elemMatch: { questionId: questionId } },
+    });
+    if (checkIfUserAskedTheQuestion) {
+      let result = await qCol.find({
+        "answers.questionId": questionId,
+      });
+      console.log(result);
+    } else {
+      console.log("question not found");
+    }
+  } catch (error) {
+    console.error(error);
+    return {
+      boolean: false,
+      status: 500,
+      error: `Something went wrong ${error}`,
+    };
+  }
+}
+
+export async function addAnswersByUserId(
+  userId,
+  questionId,
+  answer,
+  createdAt
+) {
+  //
 }

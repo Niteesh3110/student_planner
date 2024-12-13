@@ -79,10 +79,13 @@
         <div class="border border-start-0 border-end-0 m-3">
           <div class="card m-4 border-0 mx-2 my-4">
             <div
-              class="card-header border-0 d-flex justify-content-end align-items-center"
+              class="card-header border-0 d-flex justify-content-between align-items-center"
               id="question-user-name"
             >
-              {{userName}}
+              <h5
+                class="align-content-start text-uppercase"
+                id="questionUserId"
+              >{{userId}}</h5>
               <div class="d-flex gap-2" id="del-edit-container">
                 <button
                   class="btn btn-outline-danger btn-sm"
@@ -103,7 +106,7 @@
               <p class="card-text" id="question-description">{{description}}</p>
               <p class="" id="question-creation-date">{{createdAt}}</p>
               <a
-                href="/qna/ans"
+                href="/qna/ans/{{questionId}}/{{userId}}"
                 class="btn btn-outline-primary rounded-pill p-1"
                 id="ans-btn"
               >

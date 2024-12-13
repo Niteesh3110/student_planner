@@ -11,6 +11,7 @@ import {
   checkIfQuestionLiked,
   deleteQuestion,
 } from "../data/qna.js";
+import { question } from "readline-sync";
 
 router.route("/").get(async (req, res) => {
   try {
@@ -66,13 +67,9 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
   }
 });
 
-router.route("/ans").get(async (req, res) => {
-  return res.status(200).render("qnaCoursesAnswers");
-});
-
 router.route("/questions/post").post(async (req, res) => {
   try {
-    let { userId, title, description, courseCode, createdAt } = req.body;
+    let { userId, title, description, courseCode, createdAt } = req.body; // TEMP USER ID
     let response = await addQuestionByUserId(
       userId,
       title,
@@ -100,7 +97,7 @@ router.route("/questions/post").post(async (req, res) => {
 router.route("/questions/get").get(async (req, res) => {
   try {
     let response = await getAllQuestions();
-    // console.log(response);
+    console.log(response);
     if (response.boolean) {
       return res
         .status(200)
@@ -174,6 +171,22 @@ router.route("/questions/delete/:questionId").delete(async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: `Something went wrong ${error}` });
   }
+});
+
+// Answers route
+router.route("/ans/:questionId/:questionUserId").get(async (req, res) => {
+  let { questionId, questionUserId } = req.params;
+  if (!questionId || !questionUserId)
+    return res
+      .status(400)
+      .json({ error: "QuestionId or QuestionUserId not passed" });
+  if (typeof questionId !== "string" || typeof questionUserId !== "string")
+    return res
+      .status(400)
+      .json({ error: "Invalid questionId or questionUserId" });
+  questionId = questionId.trim();
+  questionUserId = questionUserId.trim();
+  return res.status(200).render("qnaCoursesAnswers");
 });
 
 export default router;
