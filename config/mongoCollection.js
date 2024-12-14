@@ -18,3 +18,4 @@ export const users = getCollectionFn("users");
 export const courses = getCollectionFn("courses");
 export const tree = getCollectionFn("tree");
 export const questions = getCollectionFn("questions");
+export const event = getCollectionFn("event");

@@ -57,3 +57,11 @@ body {
   font-size: 1.2rem;
   gap: 5px;
 } */
+
+/* Calendar CSS*/
+.alert-success{
+  display: none;
+}
+.btn-danger{
+  display: none;
+}
