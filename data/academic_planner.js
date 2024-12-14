@@ -91,13 +91,13 @@ export async function checkDuplicate(courseCode, userId) {
 
 export async function addTree(userId, tree) {
   try {
-    console.log("data file", userId);
-    console.log(JSON.stringify(tree));
+    // console.log("data file", userId);
+    // console.log(JSON.stringify(tree));
     let result = await treeCol.updateOne(
       { userId: userId },
       { $set: { tree: tree } }
     );
-    console.log(result);
+    // console.log(result);
     if (result.acknowledged && result.upsertedCount === 1) {
       return { boolean: true };
     } else {
@@ -121,7 +121,7 @@ export async function removeCourseTree(userId, courseCode) {
       { userId: userId },
       { $pull: { "tree.children": { name: courseCode } } }
     );
-    console.log("Course Remove Callback Data", result);
+    // console.log("Course Remove Callback Data", result);
     if (result.acknowledged && result.modifiedCount === 1) {
       return { boolean: true, error: "Course Removed" };
     } else {
