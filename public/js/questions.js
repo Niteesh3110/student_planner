@@ -10,7 +10,7 @@ async function addQuestionApiCall(
     let response = await axios.post(
       "http://localhost:3000/qna/questions/post",
       {
-        userId,
+        userId, // TEMP USER ID WILL USE SESSION FOR THIS
         title,
         description,
         courseCode,
@@ -75,6 +75,18 @@ async function deleteQuesiton(questionId) {
   }
 }
 
+async function answerPostApi(questionUserId, questionId) {
+  try {
+    let response = await axios.post(
+      `http://localhost:3000/qna/ans/${questionId}`,
+      { questionUserId }
+    );
+  } catch (error) {
+    console.error(`Something went wrong ${error}`);
+    return false;
+  }
+}
+
 // Question onCLick Event
 async function addQuestion() {
   const title = document.getElementById("question-title").value;
@@ -85,7 +97,7 @@ async function addQuestion() {
   const courseCodeName =
     document.getElementById("course-name-code").textContent;
   const courseCode = courseCodeName.split("-")[1].trim(); // Splitting the course "XYZ-CS123"
-  const userId = "123";
+  const userId = "npanchal"; // TEMP USER ID WILL USE SESSION FOR THIS
   let questionAdded = await addQuestionApiCall(
     userId,
     title,
@@ -97,7 +109,7 @@ async function addQuestion() {
 }
 
 // POST Button
-let modalElement = document.getElementById("exampleModal");
+let modalElement = document.getElementById("questionModal");
 const modalInstance = new bootstrap.Modal(modalElement);
 let addQuestionBtn = document.getElementById("add-question");
 addQuestionBtn.addEventListener("click", async () => {
@@ -111,18 +123,40 @@ addQuestionBtn.addEventListener("click", async () => {
 });
 
 // Delete Button
-// START FROM HERE
 document.addEventListener("click", async (event) => {
-  if (event.target.closest("#q-id")) {
-    const cardBody = event.target.closest("[data-question-id]");
+  if (event.target.closest("#delete-btn")) {
+    const deleteButton = event.target.closest("#delete-btn");
+    const cardBody = event.target.closest(".card");
     if (cardBody) {
       try {
-        const questionId = cardBody.getAttribute("data-question-id");
+        const questionId = cardBody
+          .querySelector("#q-id")
+          .getAttribute("data-question-id");
+        console.log(questionId);
         if (await deleteQuesiton(questionId)) {
           window.location.reload();
         } else {
           console.log("Could not delete question"); //CHANGE THIS
         }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+});
+
+// Answer Button
+document.addEventListener("click", async (event) => {
+  if (event.target.closest("#ans-btn")) {
+    const answerBtn = event.target.closest("#ans-btn");
+    const cardBody = event.target.closest(".card");
+    if (cardBody) {
+      try {
+        const questionId = cardBody
+          .querySelector("#q-id")
+          .getAttribute("data-question-id");
+        const questionUserId = cardBody.querySelector("#questionUserId");
+        console.log(questionId, questionUserId);
       } catch (error) {
         console.error(error);
       }
@@ -141,6 +175,7 @@ async function updateMeTooCount() {
       const meTooCountElement = buttonContainer.querySelector("#me-too-count");
 
       if (questionId && meTooButton && meTooCountElement) {
+        // Check if question is liked by the user in session
         const liked = await checkIfQuestionLiked(questionId);
 
         // Update button state

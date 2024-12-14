@@ -1,5 +1,5 @@
-<main> 
-{{!-- 
+<main>
+  {{!-- 
         {{#ifEquals inputUsername undefined}}
         
         <input type="text" id="userId" name="userId" class="less-width-input" value=""><br>
@@ -10,49 +10,45 @@
 
         {{/ifEquals}} --}}
 
-<form method="POST" action="/">
-    <label for="givenText">Paste the text you want proofread here:</label><br>
-    <input type="text" name="givenText"><br>
+  <form method="POST" action="/proofread">
+    <label for="givenText">Paste the text you want proofread here:</label><br />
+    <input type="text" name="givenText" /><br />
     <button type="submit">Upload Text</button>
-</form>
+  </form>
 
-<form method="POST" enctype="multipart/form-data" action="/">
-     <label for="userFile">Or upload the text file you want proofread here:</label><br>
-    <input type="file" name="userFile" accept="text/plain"><br>
+  <form method="POST" enctype="multipart/form-data" action="/proofread">
+    <label for="userFile">Or upload the text file you want proofread here:</label><br
+    />
+    <input type="file" name="userFile" accept="text/plain" /><br />
     <button type="submit">Upload File</button>
-</form>
+  </form>
 
-    {{#if hasErrors}}
+  {{#if hasErrors}}
     <ul class="error">
-        {{#each errors}}
+      {{#each errors}}
         <li class="errorServer">
-        {{this}}
+          {{this}}
         </li>
-        {{/each}}
+      {{/each}}
     </ul>
-    {{/if}}
+  {{/if}}
 
-    <p>Here is where your proofreaded and grammar checked file or essay will be once it's processed:</p>
-    {{#if results}}
+  <p>Here is where your proofreaded and grammar checked file or essay will be
+    once it's processed:</p>
+  {{#if results}}
     <div name="results" id="results">{{results}}</div>
     <button onclick="copyPaste()">Copy text</button>
     <script>
-        function copyPaste() {
-            var theDiv = document.getElementById('results');
-            var copyText = theDiv.textContent;
-
-            console.log(copyText);
-
-            navigator.clipboard.writeText(copyText);
-
-            alert("Copied the text to your clipboard!");
-            }
+      function copyPaste() { var theDiv = document.getElementById('results');
+      var copyText = theDiv.textContent; console.log(copyText);
+      navigator.clipboard.writeText(copyText); alert("Copied the text to your
+      clipboard!")};
     </script>
 
-    {{else}}
+  {{else}}
 
     <div name="results" id="results"></div>
 
-    {{/if}}
+  {{/if}}
 
 </main>

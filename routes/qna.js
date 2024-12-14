@@ -5,11 +5,16 @@ import { getCourseNameAndPrereq } from "../data/academic_planner.js";
 import { checkUpdateMeTooInput } from "../tasks/qna_helper.js";
 import {
   addQuestionByUserId,
+  getQuestionsByUserId,
   getAllQuestions,
   updateMeToo,
   getQuestionsByCourseCode,
   checkIfQuestionLiked,
   deleteQuestion,
+  getAnswersByQuestionId,
+  addAnswersByUserId,
+  checkIfAnswerLiked,
+  addLikedAnswers,
 } from "../data/qna.js";
 
 router.route("/").get(async (req, res) => {
@@ -66,13 +71,9 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
   }
 });
 
-router.route("/ans").get(async (req, res) => {
-  return res.status(200).render("qnaCoursesAnswers");
-});
-
 router.route("/questions/post").post(async (req, res) => {
   try {
-    let { userId, title, description, courseCode, createdAt } = req.body;
+    let { userId, title, description, courseCode, createdAt } = req.body; // TEMP USER ID
     let response = await addQuestionByUserId(
       userId,
       title,
@@ -100,7 +101,7 @@ router.route("/questions/post").post(async (req, res) => {
 router.route("/questions/get").get(async (req, res) => {
   try {
     let response = await getAllQuestions();
-    // console.log(response);
+    console.log(response);
     if (response.boolean) {
       return res
         .status(200)
@@ -146,8 +147,8 @@ router
       const questionId = req.params.questionId.trim();
       if (!questionId) throw { status: 400, error: "Invalid questionId" };
       const result = await checkIfQuestionLiked("npanchal", questionId); // TEST ID
-      res.locals.isMeToo = result ? "active" : "";
-      console.log(res.locals.isMeToo);
+      // res.locals.isMeToo = result ? "active" : "";
+      // console.log(res.locals.isMeToo);
       return res.status(200).json({ boolean: result });
     } catch (error) {
       if (error.error)
@@ -175,5 +176,68 @@ router.route("/questions/delete/:questionId").delete(async (req, res) => {
     return res.status(500).json({ error: `Something went wrong ${error}` });
   }
 });
+
+// Answers route
+router.route("/ans/:questionId/:questionUserId").get(async (req, res) => {
+  let { questionId, questionUserId } = req.params;
+  if (!questionId || !questionUserId)
+    return res
+      .status(400)
+      .json({ error: "QuestionId or QuestionUserId not passed" });
+  if (typeof questionId !== "string" || typeof questionUserId !== "string")
+    return res
+      .status(400)
+      .json({ error: "Invalid questionId or questionUserId" });
+  questionId = questionId.trim();
+  questionUserId = questionUserId.trim();
+  let answersData = await getAnswersByQuestionId(questionUserId, questionId);
+  let questionData = await getQuestionsByUserId(questionUserId, questionId);
+  const answers = answersData.data;
+  const questions = questionData.data;
+  questions.questionUserId = questionUserId;
+  console.log(answers);
+  const inputObj = { answersData: answers, questions };
+  console.log(inputObj);
+  return res.status(200).render("qnaCoursesAnswers", inputObj);
+});
+
+router.route("/ans/post").post(async (req, res) => {
+  try {
+    let { questionId, answer, createdAt } = req.body;
+    if (!questionId || !answer || !createdAt) {
+      res.status(400).json({ error: "Invalid input passed" });
+    }
+    const userId = "npanchal"; //TEMP USER ID
+    let result = await addAnswersByUserId(
+      userId,
+      questionId,
+      answer,
+      createdAt
+    );
+    if (result.boolean) {
+      return res.status(200).json({ boolean: true });
+    } else {
+      return res.status(400).json({ boolean: false });
+    }
+  } catch (error) {
+    return res.status(500).json({ boolean: false });
+  }
+});
+
+router
+  .route("/ans/CheckLikeState/:questionId/:answerId")
+  .get(async (req, res) => {
+    const { questionId, answerId } = req.params;
+    if (!questionId || !answerId) {
+      return res
+        .status(400)
+        .json({ boolean: false, error: "Invalid questionId or asnwerId" });
+    }
+    const userId = "npanchal"; // Temp USER ID
+    let result = await checkIfAnswerLiked(userId, answerId, questionId);
+    return res.status(200).json({ boolean: result.boolean });
+  });
+
+router.route("");
 
 export default router;

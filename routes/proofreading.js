@@ -35,6 +35,7 @@ router
       const result = await model.generateContent(prompt);
 
       let finalResult = result.response.text();
+      console.log(finalResult);
 
       res.status(200).render("proofreading", { results: finalResult });
     }
