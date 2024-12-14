@@ -1,79 +1,107 @@
 import express from "express";
-import { ObjectId } from "mongodb";
-import * as calendarFunctions from "../data/calendar.js"; // Import your database functions
+import {addEvent,getUserEvents,updateEvent,deleteEvent} from "../data/calendar.js";
+import { getUserByUserId } from "../data/users.js";
 
 const router = express.Router();
 
-// Render the calendar page
-router.get('/', (req, res) => {
-    try {
-        return res.status(200).render("calendar");
-    } catch (error) {
-        res.status(500).send({ error: 'An error occurred while loading the calendar page.' });
+// Middleware to check if the user is authenticated or not
+router.use(async (req, res, next) => {
+    try{
+        if(!req.session.user){
+            return res.status(401).json({ error: "Unauthorized: Please log in to access your calendar." });
+        }
+
+        const userId = req.session.user.userId;
+        const userValidationResult = await getUserByUserId(userId);
+
+        if(!userValidationResult.boolean){
+            return res.status(401).json({ error: userValidationResult.error });
+        }
+        next();
+    } 
+    catch(error){
+        console.error("Authentication middleware error:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
-// Fetch all events for the calendar
-router.get('/getEvents', async (req, res) => {
-    try {
-        const events = await calendarFunctions.getAllEvents();
+router.get("/", async (req, res) => {
+    try{
+        if(!req.session.user || !req.session.user.userId){
+            console.error("User session not found.");
+            return res.status(403).render("error", { error: "User not authenticated." });
+        }
 
-        // Format events for FullCalendar
-        const formattedEvents = events.map(event => ({
-            id: event._id.toString(), // Convert ObjectId to string
-            title: event.title,
-            start: `${event.date}T${event.time}`, // Combine date and time
-        }));
+        const userId = req.session.user.userId;
 
-        res.status(200).json(formattedEvents);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch events from the database.' });
+        const events = await getUserEvents(userId);
+
+        console.log("Fetched events:", events);
+        return res.status(200).render("calendar", { userId });
+    } 
+    catch(error){
+        console.error("Error rendering calendar page:", error);
+        return res.status(500).render("error", { error: "An error occurred while loading the calendar." });
     }
 });
 
-// Add a new event
-router.post('/addEvent', async (req, res) => {
-    try {
+router.get("/getEvents", async (req, res) => {
+    try{
+        const userId = req.session.user.userId;
+        const events = await getUserEvents(userId);
+        return res.json(events);
+    } 
+    catch(error){
+        console.error("Error fetching events:", error);
+        return res.status(500).json({ error: "Failed to fetch events." });
+    }
+});
+
+router.post("/addEvent", async (req, res) => {
+    try{
+        const userId = req.session.user.userId;
         const { title, date, time } = req.body;
 
-        // Validate inputs
-        if (!title || !date || !time) {
-            return res.status(400).json({ error: 'All fields (title, date, and time) are required.' });
-        }
-
-        // Add event to the database
-        const newEvent = await calendarFunctions.addEvent({ title, date, time });
-
-        res.status(200).json({
-            success: true,
-            message: 'Event added successfully!',
-            eventId: newEvent._id.toString(),
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        const newEvent = await addEvent(userId, title, date, time);
+        console.log("Event created:", newEvent);
+        return res.status(201).json(newEvent);
+    } 
+    catch(error){
+        console.error("Error adding event:", error);
+        return res.status(500).json({ error: "Failed to add event." });
     }
 });
 
-// Delete an event by ID
-router.delete('/deleteEvent/:id', async (req, res) => {
-    try {
+router.delete("/deleteEvent/:id", async (req, res) => {
+    try{
+        const userId = req.session.user.userId;
         const eventId = req.params.id;
 
-        // Validate the ID
-        if (!ObjectId.isValid(eventId)) {
-            return res.status(400).json({ error: 'Invalid event ID.' });
-        }
+        await deleteEvent(userId, eventId);
+        console.log(`Deleted event with ID ${eventId}`);
+        return res.status(200).json({ message: "Event deleted successfully." });
+    }
+    catch (error){
+        console.error("Error deleting event:", error);
+        return res.status(500).json({ error: "Failed to delete event." });
+    }
+});
 
-        // Delete the event from the database
-        const deleteResult = await calendarFunctions.deleteEvent(eventId);
+router.put("/updateEvent/:id", async (req, res) => {
+    try{
+        const userId = req.session.user.userId;
+        const eventId = req.params.id;
+        const { title, date, time } = req.body;
 
-        if (!deleteResult) {
-            return res.status(404).json({ error: 'Event not found.' });
-        }
+        const updatedEvent = await updateEvent(userId, eventId, title, date, time);
 
-        res.status(200).json({ success: true, message: 'Event deleted successfully!' });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to delete the event.' });
+        console.log("Event updated successfully:", updatedEvent);
+
+        return res.json(updatedEvent);
+    } 
+    catch(error){
+        console.error("Error updating event:", error);
+        return res.status(500).json({ error: "Failed to update event." });
     }
 });
 
