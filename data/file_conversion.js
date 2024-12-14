@@ -6,6 +6,9 @@ const conversionOptions = [
     // There are more options I'm going to add here
     ["png", "jpg"],
     ["png", "pdf"],
+    ["png", "svg"],
+    ["png", "tiff"],
+    ["png", "webp"]
 ];
 
 const listOptions = async (fileGiven) => {
