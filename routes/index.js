@@ -4,6 +4,7 @@ import qnaRoutes from "./qna.js";
 import calendarRoutes from "./calendar.js";
 import authRoutes from "./auth_routes.js";
 import proofRoutes from "./proofreading.js";
+import fileConversionRoutes from "./file_conversion.js";
 
 const constructorMethod = (app) => {
   app.use("/", authRoutes);
@@ -12,6 +13,7 @@ const constructorMethod = (app) => {
   app.use("/qna", qnaRoutes);
   app.use("/calendar", calendarRoutes);
   app.use("/proofread", proofRoutes);
+  app.use("/file_conversion", fileConversionRoutes);
 
   app.use("*", (req, res) => {
     return res.status(404).json({ error: "Not Found!!!" });
