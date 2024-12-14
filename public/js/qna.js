@@ -30,10 +30,10 @@ async function addQuestionApiCall(
   }
 }
 
-async function updateMeToo(questionId) {
+async function updateMeToo(questionId, func) {
   try {
     let response = await axios.patch(
-      `http://localhost:3000/qna/questions/meToo/${questionId}`
+      `http://localhost:3000/qna/questions/meToo/${func}/${questionId}`
     );
     if (response.data.boolean) {
       return true;
@@ -42,6 +42,35 @@ async function updateMeToo(questionId) {
     }
   } catch (error) {
     console.error(`Something went wrong in updateMeToo ${error}`);
+    return false;
+  }
+}
+
+async function checkIfQuestionLiked(questionId) {
+  try {
+    let response = await axios.get(
+      `http://localhost:3000/qna/questions/meToo/checkMeTooState/${questionId}`
+    );
+    return response.data.boolean;
+  } catch (error) {
+    console.error(`Something went wrong in updateMeToo ${error}`);
+    return false;
+  }
+}
+
+async function deleteQuesiton(questionId) {
+  try {
+    const response = await axios.delete(
+      `http://localhost:3000/qna/questions/delete/${questionId}`
+    );
+    if (response.data.boolean) {
+      return response.data.boolean;
+    } else {
+      console.error(response.data.error);
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
     return false;
   }
 }
@@ -81,46 +110,88 @@ addQuestionBtn.addEventListener("click", async () => {
   }
 });
 
-// meToo Button Update
+// Delete Button
+// START FROM HERE
 document.addEventListener("click", async (event) => {
-  try {
-    // Checking if me-too button exists
-    if (event.target.closest("#me-too")) {
-      // getting the parent div which has "data-question-id" attribute
-      const cardBody = event.target.closest("[data-question-id]");
-      if (cardBody) {
-        // Getting the questionId
+  if (event.target.closest("#q-id")) {
+    const cardBody = event.target.closest("[data-question-id]");
+    if (cardBody) {
+      try {
         const questionId = cardBody.getAttribute("data-question-id");
-        const meTooButton = cardBody.querySelector("#me-too");
-        const savedState = JSON.parse(localStorage.getItem("isLiked")) || false;
-        const isLiked = savedState === "true";
-        meTooButton.setAttribute("data-state", isLiked ? "on" : "off");
-        meTooButton.classList.toggle("btn-secondary", isLiked);
-        meTooButton.classList.toggle("btn-outlined-secondary", !isLiked);
-        if (!isLiked) {
-          const result = await updateMeToo(questionId);
-          if (result) {
-            const newState = meTooButton.getAttribute("data-state") === "off";
-            meTooButton.setAttribute("data-state", newState ? "on" : "off");
-            localStorage.setItem("isLiked", newState);
-            meTooButton.classList.toggle("btn-secondary", newState);
-            meTooButton.classList.toggle("btn-outlined-secondary", newState);
-            // Fetching the span that consists the count
-            const meTooCountSpan = cardBody.querySelector("#me-too-count");
-            if (meTooCountSpan) {
-              // Updating the count
-              let currentCount = parseInt(meTooCountSpan.textContent, 10) || 0;
-              meTooCountSpan.textContent = currentCount + 1;
-            }
-          } else {
-            console.log("Could not update");
-          }
+        if (await deleteQuesiton(questionId)) {
+          window.location.reload();
         } else {
-          console.log("disliked");
+          console.log("Could not delete question"); //CHANGE THIS
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+});
+
+async function updateMeTooCount() {
+  // Update button states on DOM load
+  document.addEventListener("DOMContentLoaded", async () => {
+    const meTooButtonList = document.querySelectorAll("[data-question-id]");
+
+    for (const buttonContainer of meTooButtonList) {
+      const questionId = buttonContainer.getAttribute("data-question-id");
+      const meTooButton = buttonContainer.querySelector("#me-too");
+      const meTooCountElement = buttonContainer.querySelector("#me-too-count");
+
+      if (questionId && meTooButton && meTooCountElement) {
+        const liked = await checkIfQuestionLiked(questionId);
+
+        // Update button state
+        if (liked) {
+          meTooButton.setAttribute("aria-pressed", "true");
+          meTooButton.classList.add("active");
+          meTooButton.classList.remove("deactive");
+        } else {
+          meTooButton.setAttribute("aria-pressed", "false");
+          meTooButton.classList.add("deactive");
+          meTooButton.classList.remove("active");
         }
       }
     }
-  } catch (error) {
-    console.error(error);
-  }
-});
+
+    // Add a click event listener
+    document.addEventListener("click", async (event) => {
+      //
+      if (event.target.closest("#me-too")) {
+        const cardBody = event.target.closest("[data-question-id]");
+        if (cardBody) {
+          try {
+            const questionId = cardBody.getAttribute("data-question-id");
+            const meTooButton = cardBody.querySelector("#me-too");
+            const meTooCountElement = cardBody.querySelector("#me-too-count");
+
+            let meTooCount = parseInt(meTooCountElement.textContent, 10);
+            const isPressed =
+              meTooButton.getAttribute("aria-pressed") === "true";
+
+            if (!isPressed && (await updateMeToo(questionId, "inc"))) {
+              meTooCount++;
+              meTooButton.setAttribute("aria-pressed", "true");
+              meTooButton.classList.add("active");
+              meTooButton.classList.remove("deactive");
+            } else if (isPressed && (await updateMeToo(questionId, "dec"))) {
+              meTooCount = Math.max(meTooCount - 1, 0);
+              meTooButton.setAttribute("aria-pressed", "false");
+              meTooButton.classList.add("deactive");
+              meTooButton.classList.remove("active");
+            }
+
+            // Update count
+            meTooCountElement.textContent = meTooCount;
+          } catch (error) {
+            console.error("An error occurred:", error);
+          }
+        }
+      }
+    });
+  });
+}
+
+await updateMeTooCount();

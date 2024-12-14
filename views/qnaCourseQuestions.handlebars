@@ -79,9 +79,20 @@
         <div class="border border-start-0 border-end-0 m-3">
           <div class="card m-4 border-0 mx-2 my-4">
             <div
-              class="card-header border-0"
+              class="card-header border-0 d-flex justify-content-end align-items-center"
               id="question-user-name"
-            >{{userName}}
+            >
+              {{userName}}
+              <div class="d-flex gap-2" id="del-edit-container">
+                <button
+                  class="btn btn-outline-danger btn-sm"
+                  id="delete-btn"
+                >DEL</button>
+                <button
+                  class="btn btn-outline-warning btn-sm"
+                  id="edit-btn"
+                >EDIT</button>
+              </div>
             </div>
             <div
               class="card-body p-4"
@@ -101,9 +112,7 @@
               <button
                 class="btn btn-outline-secondary rounded-pill p-1"
                 title="Me too"
-                data-bs-toggle="button"
                 aria-pressed="false"
-                data-state="off"
                 id="me-too"
               >
                 <i class="bi bi-person-raised-hand"></i>
@@ -127,5 +136,5 @@
       >{{this.courseName}}</a>
     {{/each}}
   </section>
-  <script type="module" src="/public/js/qna.js"></script>
 </main>
+<script type="module" src="/public/js/qna.js"></script>

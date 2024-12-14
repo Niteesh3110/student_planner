@@ -179,7 +179,7 @@ async function showCoursePath(courseCode) {
     // Find prerequisites for the current course
     let preReq = allCourses
       .filter((course) => course.prerequisite.includes(obj.name))
-      .flatMap((course) => course.courseCode); // Assuming `prerequisite` is an array
+      .flatMap((course) => course.courseCode);
     // Add prerequisites as children
     for (let courseCode of preReq) {
       let childObj = { name: courseCode, children: [] };
@@ -261,6 +261,7 @@ async function addCourseButton(courseName, courseCode, userId) {
       }
     });
     courseButton.addEventListener("mouseenter", async (event) => {
+      console.log("mouse enter");
       if (await checkDuplicate(courseCode, userId)) {
         return console.log("Course Already Exists");
       }
@@ -269,6 +270,7 @@ async function addCourseButton(courseName, courseCode, userId) {
       await renderChart(hiddentCourseCode);
     });
     courseButton.addEventListener("mouseleave", async (event) => {
+      console.log("mouse leave");
       flag = false;
 
       await renderChart();
