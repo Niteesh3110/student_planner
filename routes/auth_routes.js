@@ -37,6 +37,7 @@ router
           role: userData.role,
         };
         console.log(req.session.user);
+        res.locals.userId = userData.userId;
         return res.redirect("/home");
       } else {
         return res.status(401).render("signin", { error });

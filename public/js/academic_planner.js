@@ -260,7 +260,7 @@ async function addCourseButton(courseName, courseCode, userId) {
         console.error("Error adding course tree:", error);
       }
     });
-    courseButton.addEventListener("mouseenter", async (event) => {
+    courseButton.addEventListener("mouseover", async (event) => {
       console.log("mouse enter");
       if (await checkDuplicate(courseCode, userId)) {
         return console.log("Course Already Exists");
@@ -269,7 +269,7 @@ async function addCourseButton(courseName, courseCode, userId) {
       await renderHoverTree(hiddentCourseCode);
       await renderChart(hiddentCourseCode);
     });
-    courseButton.addEventListener("mouseleave", async (event) => {
+    courseButton.addEventListener("mouseout", async (event) => {
       console.log("mouse leave");
       flag = false;
 
