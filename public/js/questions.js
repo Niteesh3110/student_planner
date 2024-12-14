@@ -75,7 +75,7 @@ async function deleteQuesiton(questionId) {
   }
 }
 
-async function answerRoute(questionUserId, quesitonId) {
+async function answerPostApi(questionUserId, questionId) {
   try {
     let response = await axios.post(
       `http://localhost:3000/qna/ans/${questionId}`,
@@ -109,7 +109,7 @@ async function addQuestion() {
 }
 
 // POST Button
-let modalElement = document.getElementById("exampleModal");
+let modalElement = document.getElementById("questionModal");
 const modalInstance = new bootstrap.Modal(modalElement);
 let addQuestionBtn = document.getElementById("add-question");
 addQuestionBtn.addEventListener("click", async () => {
@@ -157,7 +157,7 @@ document.addEventListener("click", async (event) => {
           .getAttribute("data-question-id");
         const questionUserId = cardBody.querySelector("#questionUserId");
         console.log(questionId, questionUserId);
-      } catch (erorr) {
+      } catch (error) {
         console.error(error);
       }
     }
@@ -175,6 +175,7 @@ async function updateMeTooCount() {
       const meTooCountElement = buttonContainer.querySelector("#me-too-count");
 
       if (questionId && meTooButton && meTooCountElement) {
+        // Check if question is liked by the user in session
         const liked = await checkIfQuestionLiked(questionId);
 
         // Update button state

@@ -4,6 +4,11 @@
     id="qna"
   >
     <div class="d-flex justify-content-between align-items-center px-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary rounded-pill mb-2 mt-0"
+        onclick="history.back()"
+      ><i class="bi bi-arrow-left"></i></button>
       <h3 class="m-3" id="course-name-code">
         {{courseDisplay.courseNameDisplay}}
         -
@@ -14,23 +19,23 @@
         class="btn btn-outline-dark btn-md m-3 text-center fs-4 fw-lighter text-secondary rounded-pill"
         style="width: auto;"
         data-bs-toggle="modal"
-        data-bs-target="#exampleModal"
+        data-bs-target="#questionModal"
         title="Add Question"
       ><i class="bi bi-plus"></i></button>
     </div>
     <!-- Modal -->
     <div
       class="modal fade"
-      id="exampleModal"
+      id="questionModal"
       tabindex="-1"
-      aria-labelledby="exampleModalLabel"
+      aria-labelledby="questionModalLabel"
       aria-hidden="true"
       aria-modal="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Create Post</h1>
+            <h1 class="modal-title fs-5" id="questionModalLabel">Create Post</h1>
             <button
               type="button"
               class="btn-close"
@@ -40,10 +45,7 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label
-                for="exampleFormControlInput1"
-                class="form-label"
-              >Question</label>
+              <label for="question-title" class="form-label">Question</label>
               <input
                 type="text"
                 class="form-control"
@@ -53,7 +55,7 @@
             </div>
             <div class="mb-3">
               <label
-                for="exampleFormControlTextarea1"
+                for="question-description"
                 class="form-label"
               >Description</label>
               <textarea
@@ -140,4 +142,4 @@
     {{/each}}
   </section>
 </main>
-<script type="module" src="/public/js/qna.js"></script>
+<script type="module" src="/public/js/questions.js"></script>
