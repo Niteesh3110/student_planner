@@ -1,35 +1,31 @@
-import axios from 'axios';
-export { makeAPIRequest, startConversion };
+import ConvertAPI from 'convertapi';
+const convertapi = new ConvertAPI('secret_fepD2chDFjsEzSLn');
+export { listOptions, startConversion };
 
-const makeAPIRequest = async () => {
+const conversionOptions = [
+    // There are more options I'm going to add here
+    ["png", "jpg"],
+    ["png", "pdf"],
+];
+
+const listOptions = async (fileGiven) => {
     let result = [];
-    var options = {
-        method: 'POST',
-        url: 'https://api.api2convert.com/v2/jobs',
-        headers: {
-            'x-oc-api-key': 'eb13dd06bc02fb0bb95570dd9ce705ba',
-            'Content-Type': 'application/json'
-        },
-        data: {
-            input: [
-                // No input (for inital call)
-            ],
+    let type = fileGiven.mimetype.split("/")[1];
+    for (let i = 0; i < conversionOptions.length; i++) {
+        if (conversionOptions[i][0] === type) {
+            result.push(conversionOptions[i][1]);
         }
-    };
-
-    await axios.request(options)
-        .then(function (response) {
-            result = [response.data.id, response.data.server];
-            console.log(response);
-        })
-        .catch(function (error) {
-            console.error(error);
-        });
-    
+    }
     return result;
 };
 
-const startConversion = async (result, file) => {
-    // This is a test
-    return [result, file];
+const startConversion = async (filePath, convertType) => {
+    try {
+        const result = await convertapi.convert(convertType, { File: filePath });
+        const link = result.file.url;
+        return link;
+    }
+    catch (e) {
+        console.error(e.toString());
+    }
 };
