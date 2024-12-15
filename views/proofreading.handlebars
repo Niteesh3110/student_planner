@@ -1,71 +1,58 @@
-<main
-  class="vh-100 w-100 d-flex justify-content-center align-items-center gap-4"
->
-  <div
-    id="file-upload-container"
-    class="card border-light p-3"
-    style="width: 40%; height: 50vh;"
-  >
-    <div class="card-header text-center">Upload file</div>
-    <div class="card-body">
-      <form method="POST" action="/proofread">
-        <label for="givenText">Paste the text you want proofread here:</label><br
-        />
-        <textarea
-          type="text"
-          name="givenText"
-          class="form-control mb-3 h-75"
-          rows="7"
-        ></textarea>
-        <button type="submit" class="btn btn-primary">Upload Text</button>
-      </form>
+<main> 
+{{!-- 
+        {{#ifEquals inputUsername undefined}}
+        
+        <input type="text" id="userId" name="userId" class="less-width-input" value=""><br>
 
-      <form method="POST" enctype="multipart/form-data" action="/proofread">
-        <label for="userFile">Or upload the text file you want proofread here:</label><br
-        />
-        <input
-          type="file"
-          name="userFile"
-          accept="text/plain"
-          class="form-control mb-3"
-        />
-        <button type="submit" class="btn btn-primary">Upload File</button>
-      </form>
+        {{else}}
 
-      {{#if hasErrors}}
-        <ul class="error">
-          {{#each errors}}
-            <li class="errorServer">
-              {{this}}
-            </li>
-          {{/each}}
-        </ul>
-      {{/if}}
-    </div>
-  </div>
+        <input type="text" id="userId" name="userId" class="less-width-input" value={{post.inputUsername}}><br>
 
-  <div
-    id="result-container"
-    class="card border-light p-3"
-    style="width: 40%; height: 50vh;"
-  >
-    <div class="card-header text-center">
-      <p>Here is where your proofread and grammar-checked file or essay will be
-        once it's processed:</p>
-    </div>
-    <div class="card-body">
-      {{#if results}}
-        <div name="results" id="results" class="mb-3">{{results}}</div>
-        <button onclick="copyPaste()" class="btn btn-secondary">Copy text</button>
-        <script>
-          function copyPaste() { var theDiv =
-          document.getElementById('results'); var copyText = theDiv.textContent;
-          console.log(copyText); navigator.clipboard.writeText(copyText);
-          alert('Copied the text to your clipboard!'); }
-        </script>
-      {{else}}
-        <div name="results" id="results"></div>
-      {{/if}}
-    </div>
-  </div>
+        {{/ifEquals}} --}}
+
+<form method="POST" action="/">
+    <label for="givenText">Paste the text you want proofread here:</label><br>
+    <input type="text" name="givenText"><br>
+    <button type="submit">Upload Text</button>
+</form>
+
+<form method="POST" enctype="multipart/form-data" action="/">
+     <label for="userFile">Or upload the text file you want proofread here:</label><br>
+    <input type="file" name="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
+    <button type="submit">Upload File</button>
+</form>
+
+    {{#if hasErrors}}
+    <ul class="error">
+        {{#each errors}}
+        <li class="errorServer">
+        {{this}}
+        </li>
+        {{/each}}
+    </ul>
+    {{/if}}
+
+    <p>Here is where your proofreaded and grammar checked file or essay will be once it's processed:</p>
+    {{#if results}}
+    <div name="results" id="results">{{results}}</div>
+    <button onclick="copyPaste()">Copy text</button>
+    <script>
+        function copyPaste() {
+            var theDiv = document.getElementById('results');
+            var copyText = theDiv.textContent;
+
+            console.log(copyText);
+
+            navigator.clipboard.writeText(copyText);
+
+            alert("Copied the text to your clipboard!");
+            }
+    </script>
+
+    {{else}}
+
+    <div name="results" id="results"></div>
+
+    {{/if}}
+
 </main>
