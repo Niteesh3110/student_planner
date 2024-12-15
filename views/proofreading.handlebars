@@ -2,20 +2,20 @@
     <p></p><br>
     <p></p><br>
 
-<form method="POST" action="/">
+<form method="POST" id="theForm" action="/">
     <label for="givenText">Paste the text you want proofread here:</label><br>
-    <input type="text" name="givenText"><br>
+    <input type="text" name="givenText" id="givenText"><br>
     <button type="submit">Upload Text</button>
 </form>
 
-<form method="POST" enctype="multipart/form-data" action="/">
+<form method="POST" id="fileForm"  enctype="multipart/form-data" action="/">
      <label for="userFile">Or upload the text file you want proofread here:</label><br>
-    <input type="file" name="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
+    <input type="file" name="userFile" id="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
     <button type="submit">Upload File</button>
 </form>
 
     {{#if hasErrors}}
-    <ul class="error">
+    <ul class="hasErrors">
         {{#each errors}}
         <li class="errorServer">
         {{this}}
@@ -23,6 +23,9 @@
         {{/each}}
     </ul>
     {{/if}}
+
+   <div id="error" class="error" hidden>Hey you're not supposed to see this!</div>
+	<br>
 
     <p>Here is where your proofreaded and grammar checked file or essay will be once it's processed:</p>
     {{#if results}}
@@ -35,6 +38,7 @@
 
     {{/if}}
 
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <script src='../public/js/proofreading.js'></script>
 
 </main>

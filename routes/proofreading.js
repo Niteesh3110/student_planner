@@ -27,29 +27,29 @@ router.route("/").get(async (req, res) => {
         fileGiven = req.files.userFile
 
         // const NodeClam = require('clamscan');
-      //   const ClamScan = new NodeClam().init(options);
+        // const ClamScan = new NodeClam().init(options);
         
-      //             ClamScan.then(async clamscan => {
-      //       try {
-      //           // You can re-use the `clamscan` object as many times as you want
-      //           const version = await clamscan.getVersion();
-      //           console.log(`ClamAV Version: ${version}`);
+        //   ClamScan.then(async clamscan => {
+        //     try {
+        //         // You can re-use the `clamscan` object as many times as you want
+        //         const version = await clamscan.getVersion();
+        //         console.log(`ClamAV Version: ${version}`);
         
-      //           const {isInfected, file, viruses} = await clamscan.isInfected('' + fileGiven.path + '');
-      //           if (isInfected) {
-      //             errors.push(`Error: ${file} is infected with ${viruses}!`)
-      //             res.status(400).render('proofreading', {hasErrors: true, errors: errors});
-      //           };
-      //       } catch (err) {
-      //           // Handle any errors raised by the code in the try block
-      //           errors.push("Error: Couldn't scan file.")
-      //           res.status(400).render('proofreading', {hasErrors: true, errors: errors});
-      //       }
-      //   }).catch(err => {
-      //       // Handle errors that may have occurred during initialization
-      //       errors.push("Error: Couldn't initalize ClamScan.")
-      //       res.status(400).render('proofreading', {hasErrors: true, errors: errors});
-      // }); 
+        //         const {isInfected, file, viruses} = await clamscan.isInfected('' + fileGiven.path + '');
+        //         if (isInfected) {
+        //           errors.push(`Error: ${file} is infected with ${viruses}!`)
+        //           res.status(400).render('proofreading', {hasErrors: true, errors: errors});
+        //         };
+        //       } catch (err) {
+        //         // Handle any errors raised by the code in the try block
+        //         errors.push("Error: Couldn't scan file.")
+        //         res.status(400).render('proofreading', {hasErrors: true, errors: errors});
+        //       }
+        //     }).catch(err => {
+        //       // Handle errors that may have occurred during initialization
+        //       errors.push("Error: Couldn't initalize ClamScan.")
+        //       res.status(400).render('proofreading', {hasErrors: true, errors: errors});
+        //   }); 
         
         
       }
@@ -66,8 +66,6 @@ router.route("/").get(async (req, res) => {
           holder = theBody;
         }
       }
-
-      // File checking here with: https://www.npmjs.com/package/clamscan#how-to-install
 
       const genAI = new GoogleGenerativeAI("AIzaSyAMDWbHKmIoBxEZr_atsDdp-zVbQhSKAEQ");
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
