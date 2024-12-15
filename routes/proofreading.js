@@ -1,5 +1,4 @@
 import express from "express";
-import NodeClam from "clamscan";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 let doneBefore = false;
@@ -24,37 +23,11 @@ router.route("/").get(async (req, res) => {
     else{
       
       if (!theBody) {
-        fileGiven = req.files.userFile
-
-        // const NodeClam = require('clamscan');
-        // const ClamScan = new NodeClam().init(options);
-        
-        //   ClamScan.then(async clamscan => {
-        //     try {
-        //         // You can re-use the `clamscan` object as many times as you want
-        //         const version = await clamscan.getVersion();
-        //         console.log(`ClamAV Version: ${version}`);
-        
-        //         const {isInfected, file, viruses} = await clamscan.isInfected('' + fileGiven.path + '');
-        //         if (isInfected) {
-        //           errors.push(`Error: ${file} is infected with ${viruses}!`)
-        //           res.status(400).render('proofreading', {hasErrors: true, errors: errors});
-        //         };
-        //       } catch (err) {
-        //         // Handle any errors raised by the code in the try block
-        //         errors.push("Error: Couldn't scan file.")
-        //         res.status(400).render('proofreading', {hasErrors: true, errors: errors});
-        //       }
-        //     }).catch(err => {
-        //       // Handle errors that may have occurred during initialization
-        //       errors.push("Error: Couldn't initalize ClamScan.")
-        //       res.status(400).render('proofreading', {hasErrors: true, errors: errors});
-        //   }); 
-        
-        
+        fileGiven = req.files.userFile        
       }
 
       else{
+
         if (doneBefore && holder == req.body.givenText){
           doneBefore = false;
           holder = null;
@@ -79,7 +52,7 @@ router.route("/").get(async (req, res) => {
 
       let finalResult = result.response.text();
 
-      res.status(200).render('proofreading', {results: finalResult});
+      return res.status(200).render('proofreading', {results: finalResult});
     }
     
 });

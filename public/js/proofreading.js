@@ -19,7 +19,7 @@ if (theForm) {
             hasErrors.hidden = true;
           }
       
-          $(errorDiv).empty();
+          errorDiv.innerHTML = "";
           errorDiv.hidden = true;
     
         if (textForm.value == ''){
@@ -39,7 +39,7 @@ if (fileForm) {
             hasErrors.hidden = true;
           }
       
-          $(errorDiv).empty();
+          errorDiv.innerHTML = "";
           errorDiv.hidden = true;
     
           if (userFile.files.length == 0) {
