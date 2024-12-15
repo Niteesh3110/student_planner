@@ -18,7 +18,7 @@ router
   .post(async (req, res) => {
     try {
       let { userId, password } = req.body;
-      console.log(userId, password);
+      userId = userId.toLowerCase();
       if (!userId || !password) {
         return res.status(400).json({ message: "Invalid UserId or Password" });
       }
@@ -27,6 +27,7 @@ router
       await validateUserId(userId);
       await validatePassword(password);
       let isSignedIn = await signIn(userId, password);
+      console.log(isSignedIn);
       if (isSignedIn.boolean) {
         let userData = isSignedIn.data;
         req.session.user = {
@@ -39,7 +40,7 @@ router
         console.log(req.session.user);
         return res.redirect("/home");
       } else {
-        return res.status(401).render("signin", { error });
+        return res.status(401).render("signin", { error: isSignedIn.error });
       }
       // Need to sanitisen res.status(200).json({ userId, password });
     } catch (error) {
