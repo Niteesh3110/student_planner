@@ -1,8 +1,30 @@
 // Global Variable
 let flag = false;
 let showTree = {};
+const userId = await getUserId();
 
 // API
+
+async function getUserId() {
+  try {
+    const response = await axios.get("http://localhost:3000/session/getUserId");
+    if (response.data.error) {
+      console.error(response.data.error);
+      return;
+    }
+    const userId = response.data.userId;
+    if (!userId) {
+      console.error("User not found");
+      return;
+    } else {
+      return userId;
+    }
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}
+
 async function getAllCourses() {
   try {
     let response = await axios.get("http://localhost:3000/ap/getCourse");
@@ -62,6 +84,7 @@ async function getAllCorePathCourses() {
 }
 
 async function getUserTree(userID) {
+  // CHECK USERID TEMP
   try {
     let response = await axios.get(
       `http://localhost:3000/ap/getTree/${userID}`
@@ -87,8 +110,8 @@ async function addTree(userId, tree) {
       userId,
       tree,
     });
-    console.log(`addTree response: ${response}`);
-    if (response.data.success) {
+    console.log(response);
+    if (response.data.boolean) {
       console.log(`addTree response.data.message: ${response.data.message}`);
     } else {
       console.error(response.data.message);
@@ -99,6 +122,7 @@ async function addTree(userId, tree) {
 }
 
 async function checkDuplicate(courseCode, userId) {
+  // CHECK USERID TEMP
   try {
     let response = await axios.get(
       `http://localhost:3000/ap/checkDuplicate?courseCode=${courseCode}&userId=${userId}`
@@ -134,6 +158,7 @@ async function checkDuplicate(courseCode, userId) {
 }
 
 async function deleteCourseTree(userId, courseCode) {
+  // CHECK USERID TEMP
   try {
     let response = await axios.get(
       `http://localhost:3000/ap/deleteCourse?userId=${userId}&courseCode=${courseCode}`
@@ -164,125 +189,146 @@ async function deleteCourseTree(userId, courseCode) {
 // Logic
 
 async function showCoursePath(courseCode) {
-  // Fetch course data
-  let courseData = await getCourseByCourseCode(courseCode);
-  let allCourseData = await getAllCourses();
-  let allCourses = allCourseData.data;
+  try {
+    // Fetch course data
+    let courseData = await getCourseByCourseCode(courseCode);
+    let allCourseData = await getAllCourses();
+    let allCourses = allCourseData.data;
 
-  // Initialize the tree
-  let tempTree = { name: "CS", children: [] };
-  let coreCourse = { name: courseData.courseCode, children: [] };
-  tempTree.children.push(coreCourse);
+    // Initialize the tree
+    let tempTree = { name: "CS", children: [] };
+    let coreCourse = { name: courseData.courseCode, children: [] };
+    tempTree.children.push(coreCourse);
 
-  // Recursive function to add courses
-  function addCourse(obj) {
-    // Find prerequisites for the current course
-    let preReq = allCourses
-      .filter((course) => course.prerequisite.includes(obj.name))
-      .flatMap((course) => course.courseCode);
-    // Add prerequisites as children
-    for (let courseCode of preReq) {
-      let childObj = { name: courseCode, children: [] };
-      obj.children.push(childObj);
-      addCourse(childObj); // Recursively add child nodes
+    // Recursive function to add courses
+    function addCourse(obj) {
+      // Find prerequisites for the current course
+      let preReq = allCourses
+        .filter((course) => course.prerequisite.includes(obj.name))
+        .flatMap((course) => course.courseCode);
+      // Add prerequisites as children
+      for (let courseCode of preReq) {
+        let childObj = { name: courseCode, children: [] };
+        obj.children.push(childObj);
+        addCourse(childObj); // Recursively add child nodes
+      }
     }
+
+    // Start building the tree
+    addCourse(coreCourse);
+
+    // Return the constructed tree
+    return tempTree;
+  } catch (error) {
+    console.error(error);
+    return;
   }
-
-  // Start building the tree
-  addCourse(coreCourse);
-
-  // Return the constructed tree
-  return tempTree;
 }
 
 // console.log(await showCoursePath("CS_546"));
 
 async function onHoverShowTree(courseCode) {
-  let tempTree = await showCoursePath(courseCode); // get temp tree
-  let mainTree = await getUserTree("123"); // get main tree
-  let mainTreeChild = mainTree.children; // main tree child
-  let tempTreeChildren = tempTree.children;
-  if (mainTreeChild.length === 0) {
-    mainTree.children = tempTreeChildren;
-  } else {
-    for (let child_1 of mainTreeChild) {
-      for (let child_2 of tempTreeChildren) {
-        if (child_1.name !== child_2.name) {
-          mainTree.children.push(child_2);
+  try {
+    let tempTree = await showCoursePath(courseCode); // get temp tree
+    let mainTree = await getUserTree(userId); // get main tree // CHECK USERID TEMP
+    let mainTreeChild = mainTree.children; // main tree child
+    let tempTreeChildren = tempTree.children;
+    if (mainTreeChild.length === 0) {
+      mainTree.children = tempTreeChildren;
+    } else {
+      for (let child_1 of mainTreeChild) {
+        for (let child_2 of tempTreeChildren) {
+          if (child_1.name !== child_2.name) {
+            mainTree.children.push(child_2);
+          }
         }
       }
     }
-  }
-  // Removing duplicate keys
-  // Reference: https://stackoverflow.com/questions/45439961/remove-duplicate-values-from-an-array-of-objects-in-javascript
-  mainTree["children"] = mainTree.children.reduce((unique, o) => {
-    if (
-      !unique.some((obj) => obj.name === o.name && obj.children === o.children)
-    ) {
-      unique.push(o);
-    }
-    return unique;
-  }, []);
+    // Removing duplicate keys
+    // Reference: https://stackoverflow.com/questions/45439961/remove-duplicate-values-from-an-array-of-objects-in-javascript
+    mainTree["children"] = mainTree.children.reduce((unique, o) => {
+      if (
+        !unique.some(
+          (obj) => obj.name === o.name && obj.children === o.children
+        )
+      ) {
+        unique.push(o);
+      }
+      return unique;
+    }, []);
 
-  flag = true;
-  console.log("result tree", JSON.stringify(mainTree));
-  return mainTree;
+    flag = true;
+    console.log("result tree", JSON.stringify(mainTree));
+    return mainTree;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 async function addCourseButton(courseName, courseCode, userId) {
-  const courseList = document.getElementById("courses");
-  if (courseList) {
-    const courseButton = document.createElement("button");
-    const hiddenPTag = document.createElement("p");
-    hiddenPTag.textContent = courseCode;
-    hiddenPTag.id = "hidden-p-tag";
-    courseButton.className = "btn btn-outline-secondary btn-sm my-1 w-100";
-    courseButton.id = courseCode;
-    courseButton.textContent = `${courseName} - ${courseCode}`;
-    hiddenPTag.style.display = "none";
-    courseButton.addEventListener("click", async () => {
-      try {
-        let fetchTree = await getUserTree("123");
-        if (fetchTree) {
-          if (fetchTree.children.length === 3) {
-            alert(
-              "Cannot add more than 3 core courses as per university guidelines. Please remove course courses"
-            );
-            return;
+  try {
+    console.log(userId);
+    // CHECK USERID TEMP
+    const courseList = document.getElementById("courses");
+    if (courseList) {
+      const courseButton = document.createElement("button");
+      const hiddenPTag = document.createElement("p");
+      hiddenPTag.textContent = courseCode;
+      hiddenPTag.id = "hidden-p-tag";
+      courseButton.className = "btn btn-outline-secondary btn-sm my-1 w-100";
+      courseButton.id = courseCode;
+      courseButton.textContent = `${courseName} - ${courseCode}`;
+      hiddenPTag.style.display = "none";
+      courseButton.addEventListener("click", async () => {
+        try {
+          let fetchTree = await getUserTree(userId);
+          if (fetchTree) {
+            if (fetchTree.children.length === 3) {
+              alert(
+                "Cannot add more than 3 core courses as per university guidelines. Please remove course courses"
+              );
+              return;
+            }
           }
+          let tree = await onHoverShowTree(courseCode);
+          if (await checkDuplicate(courseCode, userId)) {
+            // CHECK USERID TEMP
+            return console.log("Course Already Exists");
+          }
+          await addTree(userId, tree); // CHECK USERID TEMP
+        } catch (error) {
+          console.error("Error adding course tree:", error);
         }
-        let tree = await onHoverShowTree(courseCode);
+      });
+      courseButton.addEventListener("mouseover", async (event) => {
+        console.log("mouse enter");
         if (await checkDuplicate(courseCode, userId)) {
+          // CHECK USERID TEMP
           return console.log("Course Already Exists");
         }
-        await addTree(userId, tree);
-      } catch (error) {
-        console.error("Error adding course tree:", error);
-      }
-    });
-    courseButton.addEventListener("mouseover", async (event) => {
-      console.log("mouse enter");
-      if (await checkDuplicate(courseCode, userId)) {
-        return console.log("Course Already Exists");
-      }
-      const hiddentCourseCode = courseButton.querySelector("p").innerText;
-      await renderHoverTree(hiddentCourseCode);
-      await renderChart(hiddentCourseCode);
-    });
-    courseButton.addEventListener("mouseout", async (event) => {
-      console.log("mouse leave");
-      flag = false;
+        const hiddentCourseCode = courseButton.querySelector("p").innerText;
+        await renderHoverTree(hiddentCourseCode);
+        await renderChart(hiddentCourseCode);
+      });
+      courseButton.addEventListener("mouseout", async (event) => {
+        console.log("mouse leave");
+        flag = false;
 
-      await renderChart();
-    });
+        await renderChart();
+      });
 
-    courseList.appendChild(courseButton);
-    courseButton.appendChild(hiddenPTag);
+      courseList.appendChild(courseButton);
+      courseButton.appendChild(hiddenPTag);
+    }
+  } catch (error) {
+    console.error(error);
+    return;
   }
 }
 
 // Chart
 async function chart(data, userId, color) {
+  // CHECK USERID TEMP
   function drag(simulation) {
     function dragstarted(event, d) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -422,7 +468,7 @@ async function chart(data, userId, color) {
     .text("x")
     .on("click", async (event, d) => {
       console.log(d.data.name);
-      let deleteCourseResult = await deleteCourseTree(userId, d.data.name);
+      let deleteCourseResult = await deleteCourseTree(userId, d.data.name); // CHECK USERID TEMP
       console.log(deleteCourseResult.boolean);
       if (deleteCourseResult.boolean) {
         window.location.reload();
@@ -472,7 +518,7 @@ async function chart(data, userId, color) {
 async function renderCourses() {
   let coreCourse = await getAllCorePathCourses();
   for (let course of coreCourse) {
-    await addCourseButton(course.courseName, course.courseCode, "123");
+    await addCourseButton(course.courseName, course.courseCode, userId);
   }
 }
 
@@ -484,17 +530,18 @@ async function renderChart(courseCode) {
   async function addingChart(courseCode) {
     // Get and append the first chart (svgNode)
     let data;
+    const userId = await getUserId();
     if (!courseCode) {
-      data = await getUserTree("123");
+      data = await getUserTree(userId);
     } else {
       if (flag) {
         data = await renderHoverTree(courseCode);
       } else {
-        data = await getUserTree("123");
+        data = await getUserTree(userId);
       }
     }
 
-    const svgNode = await chart(data, "123");
+    const svgNode = await chart(data, userId);
     const mainElement = document.getElementById("chart");
 
     if (mainElement) {
@@ -560,9 +607,15 @@ async function main() {
   // changeColorBtn.addEventListener("click", async () => {
   //   await changeColor();
   // });
-  await renderCourses();
-  await renderChart();
-  await chartLegend();
+  try {
+    console.log(userId);
+    await renderCourses();
+    await renderChart();
+    await chartLegend();
+  } catch (error) {
+    console.error(error);
+    return;
+  }
 }
 
 await main();

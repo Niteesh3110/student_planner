@@ -1,3 +1,4 @@
+import sessionRoutes from "./session.js";
 import academicPlannerRoute from "./academic_planner.js";
 import homeRoutes from "./home_page_routes.js";
 import qnaRoutes from "./qna.js";
@@ -14,9 +15,10 @@ const constructorMethod = (app) => {
   app.use("/calendar", calendarRoutes);
   app.use("/proofread", proofRoutes);
   app.use("/file_conversion", fileConversionRoutes);
+  app.use("/session", sessionRoutes);
 
   app.use("*", (req, res) => {
-    return res.status(404).json({ error: "Not Found!!!" });
+    return res.status(404).render("notFound");
   });
 };
 

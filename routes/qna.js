@@ -123,7 +123,7 @@ router.route("/questions/meToo/:func/:questionId").patch(async (req, res) => {
   try {
     const questionId = req.params.questionId.trim();
     const func = req.params.func.trim();
-    const userId = "npanchal"; // TEST ID
+    let userId = req.session.user.userId;
     await checkUpdateMeTooInput(questionId, func);
     const result = await updateMeToo(userId, questionId, func);
     if (result.boolean) {
@@ -146,7 +146,8 @@ router
     try {
       const questionId = req.params.questionId.trim();
       if (!questionId) throw { status: 400, error: "Invalid questionId" };
-      const result = await checkIfQuestionLiked("npanchal", questionId); // TEST ID
+      const userId = req.session.user.userId;
+      const result = await checkIfQuestionLiked(userId, questionId);
       // res.locals.isMeToo = result ? "active" : "";
       // console.log(res.locals.isMeToo);
       return res.status(200).json({ boolean: result });
@@ -164,7 +165,8 @@ router.route("/questions/delete/:questionId").delete(async (req, res) => {
     const questionId = req.params.questionId;
     if (!questionId)
       return res.status(400).json({ error: "Invalid quesitonId" });
-    let deleted = await deleteQuestion("npanchal", questionId); // TEST USER ID
+    const userId = req.session.user.userId;
+    let deleted = await deleteQuestion(userId, questionId);
     if (deleted.boolean) {
       return res.status(deleted.status).json({ boolean: true });
     } else {
@@ -207,7 +209,7 @@ router.route("/ans/post").post(async (req, res) => {
     if (!questionId || !answer || !createdAt) {
       res.status(400).json({ error: "Invalid input passed" });
     }
-    const userId = "npanchal"; //TEMP USER ID
+    const userId = req.session.user.userId; //TEMP USER ID
     let result = await addAnswersByUserId(
       userId,
       questionId,
@@ -220,22 +222,30 @@ router.route("/ans/post").post(async (req, res) => {
       return res.status(400).json({ boolean: false });
     }
   } catch (error) {
-    return res.status(500).json({ boolean: false });
+    return res
+      .status(500)
+      .json({ boolean: false, error: `Something went wrong ${error}` });
   }
 });
 
 router
   .route("/ans/CheckLikeState/:questionId/:answerId")
   .get(async (req, res) => {
-    const { questionId, answerId } = req.params;
-    if (!questionId || !answerId) {
+    try {
+      const { questionId, answerId } = req.params;
+      if (!questionId || !answerId) {
+        return res
+          .status(400)
+          .json({ boolean: false, error: "Invalid questionId or asnwerId" });
+      }
+      const userId = req.session.user.userId;
+      let result = await checkIfAnswerLiked(userId, answerId, questionId);
+      return res.status(200).json({ boolean: result.boolean });
+    } catch (error) {
       return res
-        .status(400)
-        .json({ boolean: false, error: "Invalid questionId or asnwerId" });
+        .status(500)
+        .json({ boolean: false, error: `Something went wrong ${error}` });
     }
-    const userId = "npanchal"; // Temp USER ID
-    let result = await checkIfAnswerLiked(userId, answerId, questionId);
-    return res.status(200).json({ boolean: result.boolean });
   });
 
 router.route("");

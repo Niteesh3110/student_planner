@@ -50,7 +50,6 @@ export async function addQuestionByUserId(
   const questionId = new ObjectId();
   let inputObj = {
     userId: userId,
-    userName: "ABC",
     questions: [
       {
         questionId,
@@ -251,19 +250,19 @@ export async function updateMeToo(userId, questionId, func) {
   } catch (error) {
     return { boolean: false, error: `Something went wrong ${error}` };
   }
-  if (!result) {
-    return { boolean: false, error: "Could not update me too" };
-  }
-  if (
-    result.acknowledged &&
-    result.modifiedCount === 1 &&
-    result.matchedCount === 1 &&
-    likedQuestionUpdate
-  ) {
-    return { boolean: true };
-  } else {
-    return { boolean: false, error: "Could not update me too" };
-  }
+  // if (!result) {
+  //   return { boolean: false, error: "Could not update me too" };
+  // }
+  // if (
+  //   result.acknowledged &&
+  //   result.modifiedCount === 1 &&
+  //   result.matchedCount === 1 &&
+  //   likedQuestionUpdate
+  // ) {
+  //   return { boolean: true };
+  // } else {
+  //   return { boolean: false, error: "Could not update me too" };
+  // }
 }
 
 export async function deleteQuestion(userId, questionId) {
@@ -317,7 +316,6 @@ export async function deleteQuestion(userId, questionId) {
 }
 
 // Answer
-// START FROM HERE
 export async function getAnswersByQuestionId(userId, questionId) {
   try {
     // let answersList = [];

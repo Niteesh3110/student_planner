@@ -28,7 +28,7 @@ router
       await validatePassword(password);
       let isSignedIn = await signIn(userId, password);
       if (isSignedIn.boolean) {
-        const userData = isSignedIn.data;
+        let userData = isSignedIn.data;
         req.session.user = {
           firstName: userData.firstName,
           lastName: userData.lastName,
@@ -37,7 +37,6 @@ router
           role: userData.role,
         };
         console.log(req.session.user);
-        res.locals.userId = userData.userId;
         return res.redirect("/home");
       } else {
         return res.status(401).render("signin", { error });
@@ -114,4 +113,5 @@ router.route("/signout").get(async (req, res) => {
     }
   });
 });
+
 export default router;

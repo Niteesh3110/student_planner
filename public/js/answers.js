@@ -1,4 +1,24 @@
 // APIs
+async function getUserId() {
+  try {
+    const response = await axios.get("http://localhost:3000/session/getUserId");
+    if (response.data.error) {
+      console.error(response.data.error);
+      return;
+    }
+    const userId = response.data.userId;
+    if (!userId) {
+      console.error("User not found");
+      return;
+    } else {
+      return userId;
+    }
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}
+
 async function addAnswersApiCall(questionId, answer, createdAt) {
   try {
     let response = await axios.post("http://localhost:3000/qna/ans/post", {
