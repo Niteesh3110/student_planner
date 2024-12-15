@@ -115,6 +115,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.addEventListener("click", async (event) => {
     if (event.target.closest("#like-btn")) {
+      const cardBody = event.target.closest("[data-answer-id]");
+      if (cardBody) {
+        try {
+        } catch (error) {}
+      }
     }
   });
 });

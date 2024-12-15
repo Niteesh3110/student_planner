@@ -2,7 +2,7 @@ import express from "express";
 import axios from "axios";
 const router = express.Router();
 import { getCourseNameAndPrereq } from "../data/academic_planner.js";
-import { checkUpdateMeTooInput } from "../tasks/qna_helper.js";
+import { checkUpdateMeTooInput, checkLikeInput } from "../tasks/qna_helper.js";
 import {
   addQuestionByUserId,
   getQuestionsByUserId,
@@ -14,7 +14,7 @@ import {
   getAnswersByQuestionId,
   addAnswersByUserId,
   checkIfAnswerLiked,
-  addLikedAnswers,
+  updateLike,
 } from "../data/qna.js";
 
 router.route("/").get(async (req, res) => {
@@ -248,6 +248,16 @@ router
     }
   });
 
-router.route("");
+router.route("/ans/updateLike").patch(async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    if (!userId) return res.status(400).json({ error: "Invalid UserId" });
+    let { answerId, questionId, func } = req.body;
+    await checkLikeInput(answerId, questionId, func);
+    // const result = await
+  } catch (error) {
+    //
+  }
+});
 
 export default router;

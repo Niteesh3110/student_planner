@@ -508,19 +508,6 @@ export async function updateLike(userId, answerId, questionId, func) {
       );
       console.log("inc", result);
       likedAnswerUpdate = await addLikedAnswers(userId, answerId, questionId);
-      // if (!result) {
-      //   return { boolean: false, error: "Could not update likes" };
-      // }
-      // if (
-      //   result.acknowledged &&
-      //   result.modifiedCount === 1 &&
-      //   result.matchedCount === 1 &&
-      //   likedQuestionUpdate
-      // ) {
-      //   return { boolean: true };
-      // } else {
-      //   return { boolean: false, error: "Could not update likes" };
-      // }
     } else if (func === "dec") {
       result = await qCol.updateOne(
         {

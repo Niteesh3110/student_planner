@@ -1,5 +1,3 @@
-// Global
-
 async function getUserId() {
   try {
     const response = await axios.get("http://localhost:3000/session/getUserId");
