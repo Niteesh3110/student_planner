@@ -1,3 +1,20 @@
+async function getUserId() {
+  try {
+    const response = await axios.get("http://localhost:3000/session/getUserId");
+    if (response.data.error) {
+      console.error(response.data.error);
+    }
+    const userId = response.data.userId;
+    if (!userId) {
+      console.error("User not found");
+    } else {
+      return userId;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 // API CALLS
 async function addQuestionApiCall(
   userId,
@@ -6,6 +23,7 @@ async function addQuestionApiCall(
   courseCode,
   createdAt
 ) {
+  // CHECK USERID TEMP
   try {
     let response = await axios.post(
       "http://localhost:3000/qna/questions/post",
@@ -89,6 +107,7 @@ async function answerPostApi(questionUserId, questionId) {
 
 // Question onCLick Event
 async function addQuestion() {
+  const userId = await getUserId();
   const title = document.getElementById("question-title").value;
   if (title.trim().length === 0) return false;
   const description = document.getElementById("question-description").value;
@@ -97,7 +116,7 @@ async function addQuestion() {
   const courseCodeName =
     document.getElementById("course-name-code").textContent;
   const courseCode = courseCodeName.split("-")[1].trim(); // Splitting the course "XYZ-CS123"
-  const userId = "npanchal"; // TEMP USER ID WILL USE SESSION FOR THIS
+  console.log(userId);
   let questionAdded = await addQuestionApiCall(
     userId,
     title,
@@ -124,6 +143,7 @@ addQuestionBtn.addEventListener("click", async () => {
 
 // Delete Button
 document.addEventListener("click", async (event) => {
+  const userId = await getUserId();
   if (event.target.closest("#delete-btn")) {
     const deleteButton = event.target.closest("#delete-btn");
     const cardBody = event.target.closest(".card");
@@ -136,7 +156,7 @@ document.addEventListener("click", async (event) => {
         if (await deleteQuesiton(questionId)) {
           window.location.reload();
         } else {
-          console.log("Could not delete question"); //CHANGE THIS
+          console.log("Could not delete question");
         }
       } catch (error) {
         console.error(error);
@@ -147,6 +167,7 @@ document.addEventListener("click", async (event) => {
 
 // Answer Button
 document.addEventListener("click", async (event) => {
+  const userId = await getUserId();
   if (event.target.closest("#ans-btn")) {
     const answerBtn = event.target.closest("#ans-btn");
     const cardBody = event.target.closest(".card");
@@ -164,69 +185,64 @@ document.addEventListener("click", async (event) => {
   }
 });
 
-async function updateMeTooCount() {
-  // Update button states on DOM load
-  document.addEventListener("DOMContentLoaded", async () => {
-    const meTooButtonList = document.querySelectorAll("[data-question-id]");
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("DOM is ready!");
 
-    for (const buttonContainer of meTooButtonList) {
-      const questionId = buttonContainer.getAttribute("data-question-id");
-      const meTooButton = buttonContainer.querySelector("#me-too");
-      const meTooCountElement = buttonContainer.querySelector("#me-too-count");
+  const meTooButtonList = document.querySelectorAll("[data-question-id]");
 
-      if (questionId && meTooButton && meTooCountElement) {
-        // Check if question is liked by the user in session
-        const liked = await checkIfQuestionLiked(questionId);
+  for (const buttonContainer of meTooButtonList) {
+    const questionId = buttonContainer.getAttribute("data-question-id");
+    const meTooButton = buttonContainer.querySelector("#me-too");
+    const meTooCountElement = buttonContainer.querySelector("#me-too-count");
 
-        // Update button state
-        if (liked) {
-          meTooButton.setAttribute("aria-pressed", "true");
-          meTooButton.classList.add("active");
-          meTooButton.classList.remove("deactive");
-        } else {
-          meTooButton.setAttribute("aria-pressed", "false");
-          meTooButton.classList.add("deactive");
-          meTooButton.classList.remove("active");
+    if (questionId && meTooButton && meTooCountElement) {
+      // Check if the question is liked by the user in session
+      const liked = await checkIfQuestionLiked(questionId);
+
+      // Update button state
+      if (liked) {
+        meTooButton.setAttribute("aria-pressed", "true");
+        meTooButton.classList.add("active");
+        meTooButton.classList.remove("deactive");
+      } else {
+        meTooButton.setAttribute("aria-pressed", "false");
+        meTooButton.classList.add("deactive");
+        meTooButton.classList.remove("active");
+      }
+    }
+  }
+
+  // Add a click event listener
+  document.addEventListener("click", async (event) => {
+    if (event.target.closest("#me-too")) {
+      const cardBody = event.target.closest("[data-question-id]");
+      if (cardBody) {
+        try {
+          const questionId = cardBody.getAttribute("data-question-id");
+          const meTooButton = cardBody.querySelector("#me-too");
+          const meTooCountElement = cardBody.querySelector("#me-too-count");
+
+          let meTooCount = parseInt(meTooCountElement.textContent, 10);
+          const isPressed = meTooButton.getAttribute("aria-pressed") === "true";
+
+          if (!isPressed && (await updateMeToo(questionId, "inc"))) {
+            meTooCount++;
+            meTooButton.setAttribute("aria-pressed", "true");
+            meTooButton.classList.add("active");
+            meTooButton.classList.remove("deactive");
+          } else if (isPressed && (await updateMeToo(questionId, "dec"))) {
+            meTooCount = Math.max(meTooCount - 1, 0);
+            meTooButton.setAttribute("aria-pressed", "false");
+            meTooButton.classList.add("deactive");
+            meTooButton.classList.remove("active");
+          }
+
+          // Update count
+          meTooCountElement.textContent = meTooCount;
+        } catch (error) {
+          console.error("An error occurred:", error);
         }
       }
     }
-
-    // Add a click event listener
-    document.addEventListener("click", async (event) => {
-      //
-      if (event.target.closest("#me-too")) {
-        const cardBody = event.target.closest("[data-question-id]");
-        if (cardBody) {
-          try {
-            const questionId = cardBody.getAttribute("data-question-id");
-            const meTooButton = cardBody.querySelector("#me-too");
-            const meTooCountElement = cardBody.querySelector("#me-too-count");
-
-            let meTooCount = parseInt(meTooCountElement.textContent, 10);
-            const isPressed =
-              meTooButton.getAttribute("aria-pressed") === "true";
-
-            if (!isPressed && (await updateMeToo(questionId, "inc"))) {
-              meTooCount++;
-              meTooButton.setAttribute("aria-pressed", "true");
-              meTooButton.classList.add("active");
-              meTooButton.classList.remove("deactive");
-            } else if (isPressed && (await updateMeToo(questionId, "dec"))) {
-              meTooCount = Math.max(meTooCount - 1, 0);
-              meTooButton.setAttribute("aria-pressed", "false");
-              meTooButton.classList.add("deactive");
-              meTooButton.classList.remove("active");
-            }
-
-            // Update count
-            meTooCountElement.textContent = meTooCount;
-          } catch (error) {
-            console.error("An error occurred:", error);
-          }
-        }
-      }
-    });
   });
-}
-
-await updateMeTooCount();
+});

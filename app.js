@@ -15,6 +15,9 @@ import {
   homeMiddleware,
   isLoggedInMiddleware,
   isMeToo,
+  proofreadMiddleware,
+  calendarMiddleware,
+  localUserIdMiddleware,
 } from "./middleware.js";
 
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
@@ -66,16 +69,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(rewriteUnsupportedBrowserMethods);
 
 app.use(isMeToo);
-
-
-// app.use(isLoggedInMiddleware);
-// app.use("/", rootMiddleware);
-// app.use("/signin", signInMiddleware);
-// app.use("/signup", signUpMiddleware);
-// app.use("/signout", signOutMiddleware);
-// app.use("/home", homeMiddleware);
-// app.use("/ap", academicPlannerMiddleware);
-// app.use("/qna", qnaMiddleware);
+app.use(isLoggedInMiddleware);
+app.use("/", rootMiddleware);
+app.use("/signin", signInMiddleware);
+app.use("/signup", signUpMiddleware);
+app.use(localUserIdMiddleware);
+app.use("/home", homeMiddleware);
+app.use("/ap", academicPlannerMiddleware);
+app.use("/qna", qnaMiddleware);
+app.use("/proofread", proofreadMiddleware);
+app.use("/calendar", calendarMiddleware);
+app.use("/signout", signOutMiddleware);
 
 app.set("view engine", "handlebars");
 

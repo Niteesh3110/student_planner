@@ -7,10 +7,12 @@ let holder = "";
 
 const router = express.Router();
 
-router.route("/").get(async (req, res) => {
-  return res.status(200).render("proofreading");
-}).post(async (req, res) => {
-    
+router
+  .route("/")
+  .get(async (req, res) => {
+    return res.status(200).render("proofreading");
+  })
+  .post(async (req, res) => {
     const theBody = req.body.givenText;
     const theFile = req.files;
     let data ;
@@ -42,7 +44,9 @@ router.route("/").get(async (req, res) => {
         }
       }
 
-      const genAI = new GoogleGenerativeAI("AIzaSyAMDWbHKmIoBxEZr_atsDdp-zVbQhSKAEQ");
+      const genAI = new GoogleGenerativeAI(
+        "AIzaSyAMDWbHKmIoBxEZr_atsDdp-zVbQhSKAEQ"
+      );
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       let prompt;
 
@@ -58,6 +62,4 @@ router.route("/").get(async (req, res) => {
     
     
 });
-
-
 export default router;

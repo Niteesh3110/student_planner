@@ -6,6 +6,14 @@ export async function checkUpdateMeTooInput(questionId, func) {
     throw { status: 400, error: "func not recognised" };
 }
 
+export async function checkLikeInput(answerId, questionId, func) {
+  func = func.trim();
+  if (!questionId || !answerId || !func)
+    throw { status: 400, error: "answerId or questionId or func invalid" };
+  if (func !== "inc" && func !== "dec")
+    throw { status: 400, error: "func not recognised" };
+}
+
 export async function checkUserId(userId) {
   //
 }
