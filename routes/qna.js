@@ -67,7 +67,7 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
       }
     }
   } catch (error) {
-    //
+    console.error(error);
   }
 });
 

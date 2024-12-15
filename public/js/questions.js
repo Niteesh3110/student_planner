@@ -1,5 +1,4 @@
 // Global
-const userId = await getUserId();
 
 async function getUserId() {
   try {
@@ -110,6 +109,7 @@ async function answerPostApi(questionUserId, questionId) {
 
 // Question onCLick Event
 async function addQuestion() {
+  const userId = await getUserId();
   const title = document.getElementById("question-title").value;
   if (title.trim().length === 0) return false;
   const description = document.getElementById("question-description").value;
@@ -145,6 +145,7 @@ addQuestionBtn.addEventListener("click", async () => {
 
 // Delete Button
 document.addEventListener("click", async (event) => {
+  const userId = await getUserId();
   if (event.target.closest("#delete-btn")) {
     const deleteButton = event.target.closest("#delete-btn");
     const cardBody = event.target.closest(".card");
@@ -168,6 +169,7 @@ document.addEventListener("click", async (event) => {
 
 // Answer Button
 document.addEventListener("click", async (event) => {
+  const userId = await getUserId();
   if (event.target.closest("#ans-btn")) {
     const answerBtn = event.target.closest("#ans-btn");
     const cardBody = event.target.closest(".card");
@@ -186,7 +188,8 @@ document.addEventListener("click", async (event) => {
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("hey");
+  console.log("DOM is ready!");
+
   const meTooButtonList = document.querySelectorAll("[data-question-id]");
 
   for (const buttonContainer of meTooButtonList) {
@@ -195,7 +198,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const meTooCountElement = buttonContainer.querySelector("#me-too-count");
 
     if (questionId && meTooButton && meTooCountElement) {
-      // Check if question is liked by the user in session
+      // Check if the question is liked by the user in session
       const liked = await checkIfQuestionLiked(questionId);
 
       // Update button state
@@ -213,7 +216,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Add a click event listener
   document.addEventListener("click", async (event) => {
-    //
     if (event.target.closest("#me-too")) {
       const cardBody = event.target.closest("[data-question-id]");
       if (cardBody) {
