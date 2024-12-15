@@ -3,6 +3,7 @@ import {
     listOptions,
     startConversion
 } from "../data/file_conversion.js";
+import { virusScan } from "../tasks/virus_scanning.js";
 
 const router = express.Router();
 
@@ -20,6 +21,8 @@ router
                 if (err)
                     return res.status(400).render("file_conversion", { noFile: true });
             });
+            //const scanResult = await virusScan(uploadPath);
+            //console.log(scanResult);
             const options = await listOptions(req.files.file);
             if (options.length === 0)
                 return res.render("file_conversion", { noOptions: true });
