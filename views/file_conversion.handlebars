@@ -1,35 +1,42 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-  </head>
-  <body>
-    <h1>File Conversion</h1>
-    <h4>Instructions</h4>
-    <ol>
-      <li>Upload a file by clicking "Browse..." and selecting from your device.</li>
-      <li>Click the "Upload" button.</li>
-      <li>Once the file is uploaded, you will be given a list of conversion
-        options. Select one.</li>
-      <li>Click the "Convert" button and you will be given a link to download
-        your converted file.</li>
-    </ol>
+    <head>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <h1>File Conversion</h1>
+        <h4>Instructions</h4>
+        <ol>
+            <li>Upload a file with the input below and selecting from your device.</li>
+            <li>Click the "Upload" button.</li>
+            <li>Once the file is uploaded, you will be given a list of conversion options. Select one.</li>
+            <li>Click the "Convert" button and you will be given a link to download your converted file.</li>
+        </ol>
 
-    <form
-      action="/file_conversion/upload"
-      method="post"
-      enctype="multipart/form-data"
-    >
-      <input type="file" name="file" />
-      <button type="submit">Upload</button>
-    </form>
+        <h4>Conversions Available</h4>
+        <ul>
+            <li>csv → pdf, xlsx</li>
+            <li>docx → jpg, pdf, png, tiff, txt, webp, xml</li>
+            <li>jpg → pdf, png, svg, tiff, webp</li>
+            <li>pdf → docx, pptx, xlsx</li>
+            <li>png → jpg, pdf, svg, tiff, webp</li>
+            <li>pptx → jpg, pdf, png, tiff, webp</li>
+            <li>txt → jpg</li>
+            <li>xlsx → csv, jpg, pdf, png, tiff, webp</li>
+            <li>xml → docx</li>
+        </ul>
 
-    {{#if noFile}}
-      <p style="color: red;">No file uploaded.</p>
-    {{/if}}
+        <form action="/file_conversion/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file"/>
+            <button type="submit">Upload</button>
+        </form>
 
-    {{#if noOptions}}
-      <p style="color: red;">No conversion options available.</p>
-    {{/if}}
+        {{#if noFile}}
+            <p style="color: red;">File was not uploaded. Please try again.</p>
+        {{/if}}
+
+        {{#if noOptions}}
+            <p style="color: red;">No conversion options available for that file.</p>
+        {{/if}}
 
     {{#if options}}
       <h5>Conversion options for "{{fileName}}" </h5>
