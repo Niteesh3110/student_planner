@@ -1,14 +1,6 @@
 <main> 
-{{!-- 
-        {{#ifEquals inputUsername undefined}}
-        
-        <input type="text" id="userId" name="userId" class="less-width-input" value=""><br>
-
-        {{else}}
-
-        <input type="text" id="userId" name="userId" class="less-width-input" value={{post.inputUsername}}><br>
-
-        {{/ifEquals}} --}}
+    <p></p><br>
+    <p></p><br>
 
 <form method="POST" action="/">
     <label for="givenText">Paste the text you want proofread here:</label><br>
@@ -35,24 +27,14 @@
     <p>Here is where your proofreaded and grammar checked file or essay will be once it's processed:</p>
     {{#if results}}
     <div name="results" id="results">{{results}}</div>
-    <button onclick="copyPaste()">Copy text</button>
-    <script>
-        function copyPaste() {
-            var theDiv = document.getElementById('results');
-            var copyText = theDiv.textContent;
-
-            console.log(copyText);
-
-            navigator.clipboard.writeText(copyText);
-
-            alert("Copied the text to your clipboard!");
-            }
-    </script>
+    <button name="resultsButton" id="resultsButton">Copy text</button>
 
     {{else}}
 
     <div name="results" id="results"></div>
 
     {{/if}}
+
+    <script src='../public/js/proofreading.js'></script>
 
 </main>
