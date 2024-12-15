@@ -15,7 +15,6 @@
     "@google/generative-ai": "^0.21.0",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
-    "clamscan": "^2.4.0",
     "convertapi": "^1.15.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
