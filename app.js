@@ -57,7 +57,11 @@ app.engine(
   })
 );
 
-app.use(fileUpload());
+
+app.use(fileUpload({
+  useTempFiles : true,
+  tempFileDir : '/tmp'
+}));
 
 app.use("/public", express.static("public"));
 app.use(express.json());
