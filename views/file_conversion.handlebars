@@ -31,11 +31,19 @@
         </form>
 
         {{#if noFile}}
-            <p style="color: red;">File was not uploaded. Please try again.</p>
+            <p style="color: red;">Please upload a file to convert.</p>
         {{/if}}
 
         {{#if noOptions}}
             <p style="color: red;">No conversion options available for that file.</p>
+        {{/if}}
+
+        {{#if badUpload}}
+            <p style="color: red;">Upload went wrong. Please try again.</p>
+        {{/if}}
+
+        {{#if badFile}}
+            <p style="color: red;">That file cannot be used.</p>
         {{/if}}
 
     {{#if options}}
@@ -52,7 +60,7 @@
     {{/if}}
 
     {{#if conversionIncomplete}}
-      <p style="color: red;">Something went wrong, please try again.</p>
+      <p style="color: red;">Conversion went wrong. Please try again.</p>
     {{/if}}
 
     {{#if conversionComplete}}
