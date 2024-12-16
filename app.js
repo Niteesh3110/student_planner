@@ -18,6 +18,8 @@ import {
   proofreadMiddleware,
   calendarMiddleware,
   localUserIdMiddleware,
+  fileConversionMiddleware,
+  sessionRoutesMiddleware,
 } from "./middleware.js";
 
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
@@ -57,11 +59,12 @@ app.engine(
   })
 );
 
-
-app.use(fileUpload({
-  useTempFiles : true,
-  tempFileDir : '/tmp'
-}));
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp",
+  })
+);
 
 app.use("/public", express.static("public"));
 app.use(express.json());
@@ -79,6 +82,8 @@ app.use("/ap", academicPlannerMiddleware);
 app.use("/qna", qnaMiddleware);
 app.use("/proofread", proofreadMiddleware);
 app.use("/calendar", calendarMiddleware);
+app.use("/file_conversion", fileConversionMiddleware);
+app.use("/session", sessionRoutesMiddleware);
 app.use("/signout", signOutMiddleware);
 
 app.set("view engine", "handlebars");
