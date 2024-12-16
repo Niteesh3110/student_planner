@@ -1,37 +1,47 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg bg-body-tertiary position-fixed w-100">
+  <div
+    class="container-fluid d-flex justify-content-between align-items-center"
+  >
+    <!-- Navbar Brand -->
+    <a class="navbar-brand" href="#">SP</a>
+
+    <!-- Navbar Toggler -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar Links -->
     <div
-      class="collapse navbar-collapse justify-content-center"
+      class="collapse navbar-collapse d-flex justify-content-center align-items-center"
       id="navbarSupportedContent"
     >
-      <!-- Add mx-auto to center the list of links -->
-      <ul class="navbar-nav mx-auto mb-2 mb-lg-0 justify-content-center">
+      <ul class="navbar-nav mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/home">Home</a>
+          <a class="nav-link" aria-current="page" href="/home">Home</a>
         </li>
         <li class="nav-item">
-          <a
-            class="nav-link active"
-            aria-current="page"
-            href="/ap"
-          >academic_planner</a>
+          <a class="nav-link" href="/ap">Academic Planner</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/qna">Q&A</a>
+          <a class="nav-link" href="/qna">Q&A</a>
         </li>
         <li class="nav-item">
-          <a
-            class="nav-link active"
-            aria-current="page"
-            href="/calendar"
-          >Calendar</a>
+          <a class="nav-link" href="/calendar">Calendar</a>
         </li>
         <li class="nav-item">
-          <a
-            class="nav-link active"
-            aria-current="page"
-            href="/proofread"
-          >Proofreading</a>
+          <a class="nav-link" href="/proofread">Proofreading</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/file_conversion">File
+            Conversion</a>
         </li>
         <li class="nav-item">
           <a
@@ -42,18 +52,8 @@
         </li>
       </ul>
     </div>
-    {{! <div class="d-flex position-absolute top-0 end-0 p-2">
-      <a
-        role="button"
-        href="/signout"
-        data-mdb-button-init
-        data-mdb-ripple-init
-        class="btn btn-secondary btn-floating"
-      >
-        {Username}
-      </a>
-    </div> }}
-    <div class="dropdown position-absolute top-0 end-0 py-2 px-4">
+    <!-- User Dropdown -->
+    <div class="dropdown" id="userIdContainer">
       <button
         class="btn btn-secondary dropdown-toggle"
         type="button"
@@ -62,13 +62,13 @@
         aria-haspopup="true"
         aria-expanded="false"
       >
-        username
+        {{#if userId}}{{userId}}{{else}}USERNAME{{/if}}
       </button>
       <div
-        class="dropdown-menu w-25 text-center"
+        class="dropdown-menu dropdown-menu-end text-center"
         aria-labelledby="dropdownMenuButton"
       >
-        <a class="dropdown-item w-auto p-0 text-center" href="/signout">SIGN OUT</a>
+        <a class="dropdown-item" href="/signout">Sign Out</a>
       </div>
     </div>
   </div>

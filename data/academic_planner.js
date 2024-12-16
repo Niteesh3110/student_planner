@@ -40,9 +40,9 @@ export async function getCourseNameAndPrereq() {
   }
 }
 
-export async function getUserTree(userID) {
+export async function getUserTree(userId) {
   try {
-    let result = await treeCol.findOne({ userId: "123" });
+    let result = await treeCol.findOne({ userId }); // TEMP USER
     if (!result) {
       return { boolean: false, error: "User not found" };
     }
@@ -98,7 +98,7 @@ export async function addTree(userId, tree) {
       { $set: { tree: tree } }
     );
     // console.log(result);
-    if (result.acknowledged && result.upsertedCount === 1) {
+    if (result.acknowledged && result.modifiedCount === 1) {
       return { boolean: true };
     } else {
       return { boolean: false, error: "Tree not added" };
