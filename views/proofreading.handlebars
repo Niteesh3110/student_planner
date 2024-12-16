@@ -30,13 +30,13 @@
     <label for="givenText">Paste the text you want proofread here:</label><br>
     <input type="text" name="givenText" id="givenText"><br>
     <button type="submit">Upload Text</button>
-</form>
+</form> <br>
 
 <form method="POST" id="fileForm"  enctype="multipart/form-data" action="/">
      <label for="userFile">Or upload the text file you want proofread here:</label><br>
     <input type="file" name="userFile" id="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
     <button type="submit">Upload File</button>
-</form>
+</form> <br>
 
     {{#if hasErrors}}
     <ul class="hasErrors">

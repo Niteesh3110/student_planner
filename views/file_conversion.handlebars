@@ -1,18 +1,14 @@
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-    </head>
-    <body>
-        <h1>File Conversion</h1>
-        <h4>Instructions</h4>
-        <ol>
-            <li>Upload a file with the input below and selecting from your device.</li>
-            <li>Click the "Upload" button.</li>
-            <li>Once the file is uploaded, you will be given a list of conversion options. Select one.</li>
-            <li>Click the "Convert" button and you will be given a link to download your converted file.</li>
-        </ol>
+<main>   
+    <h1>File Conversion</h1>
+    <h4>Instructions</h4>
+    <ol>
+        <li>Upload a file with the input below and selecting from your device.</li>
+        <li>Click the "Upload" button.</li>
+        <li>Once the file is uploaded, you will be given a list of conversion options. Select one.</li>
+        <li>Click the "Convert" button and you will be given a link to download your converted file.</li>
+    </ol>
 
-        <h4>Conversions Available</h4>
+    <h4>Conversions Available</h4>
         <ul>
             <li>csv → pdf, xlsx</li>
             <li>docx → jpg, pdf, png, tiff, txt, webp, xml</li>
@@ -31,11 +27,19 @@
         </form>
 
         {{#if noFile}}
-            <p style="color: red;">File was not uploaded. Please try again.</p>
+            <p style="color: red;">Please upload a file to convert.</p>
         {{/if}}
 
         {{#if noOptions}}
             <p style="color: red;">No conversion options available for that file.</p>
+        {{/if}}
+
+        {{#if badUpload}}
+            <p style="color: red;">Upload went wrong. Please try again.</p>
+        {{/if}}
+
+        {{#if badFile}}
+            <p style="color: red;">That file cannot be used.</p>
         {{/if}}
 
     {{#if options}}
@@ -52,11 +56,10 @@
     {{/if}}
 
     {{#if conversionIncomplete}}
-      <p style="color: red;">Something went wrong, please try again.</p>
+      <p style="color: red;">Conversion went wrong. Please try again.</p>
     {{/if}}
 
     {{#if conversionComplete}}
       <a href="{{conversionLink}}">Download converted file</a>
     {{/if}}
-  </body>
-</html>
+</main>

@@ -9,6 +9,7 @@ if (cloudmersiveApiKey) {
   ApiKey.apiKey = cloudmersiveApiKey;
 }
 
+// Async function to handle the virus scan
 export async function virusScan(inputFilePath) {
   const api = new CloudmersiveVirusApiClient.ScanApi();
 

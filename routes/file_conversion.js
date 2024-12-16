@@ -3,6 +3,7 @@ import {
     listOptions,
     startConversion
 } from "../data/file_conversion.js";
+import { virusScan } from "../tasks/virus_scanning.js";
 
 const router = express.Router();
 
@@ -18,15 +19,18 @@ router
             let uploadPath = './public/toConvert/' + currFile.name;
             currFile.mv(uploadPath, function(err) {
                 if (err)
-                    return res.status(400).render("file_conversion", { noFile: true });
+                    return res.status(400).render("file_conversion", { badUpload: true });
             });
+            let checkFile = await virusScan(uploadPath);
+            if (!(checkFile.CleanResult))
+                return res.status(400).render("file_conversion", { badFile: true });
             const options = await listOptions(req.files.file);
             if (options.length === 0)
-                return res.render("file_conversion", { noOptions: true });
-            return res.render("file_conversion", { options, fileName: req.files.file.name, filePath: uploadPath });
+                return res.status(400).render("file_conversion", { noOptions: true });
+            return res.status(200).render("file_conversion", { options, fileName: req.files.file.name, filePath: uploadPath });
         }
         catch (e) {
-            return res.status(400).render("file_conversion", { noFile: true });
+            return res.status(404).render("file_conversion", { noFile: true });
         }
     });
 
@@ -36,7 +40,9 @@ router.route("/convert").post(async (req, res) => {
       req.body.filePath,
       req.body.option
     );
-    return res.render("file_conversion", {
+    return res
+        .status(200)
+        .render("file_conversion", {
       conversionComplete: true,
       conversionLink,
     });
