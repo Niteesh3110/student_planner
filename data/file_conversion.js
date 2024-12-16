@@ -1,6 +1,7 @@
 import ConvertAPI from "convertapi";
+import fs from "fs";
 const convertapi = new ConvertAPI(process.env.CONVERT_API);
-export { listOptions, startConversion };
+export { listOptions, startConversion, clearDir };
 
 const conversionOptions = [
     { "csv": ["pdf", "xlsx"] },
@@ -33,4 +34,22 @@ const startConversion = async (filePath, convertType) => {
   } catch (e) {
     console.error(e.toString());
   }
+};
+
+const clearDir = async () => {
+  fs.readdir("./public/toConvert", (err, files) => {
+    if (err) {
+      console.error(err.toString());
+      return;
+    }
+    for (let file of files) {
+      if (file === ".keep") continue;
+      fs.unlink(`./public/toConvert/${file}`, (err) => {
+        if (err) {
+          console.error(err.toString());
+          return;
+        }
+      });
+    }
+  });
 };
