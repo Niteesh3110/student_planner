@@ -124,3 +124,10 @@ export function localUserIdMiddleware(req, res, next) {
   }
   next();
 }
+
+export function sessionRoutesMiddleware(req, res, next) {
+  if (!req.session.user && req.session.user.userId) {
+    return res.redirect("/signin");
+  }
+  next();
+}
