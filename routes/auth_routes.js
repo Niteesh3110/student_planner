@@ -85,6 +85,10 @@ router
       await validateEmail(email);
       await validatePassword(password);
       await validatePassword(confirmPassword);
+      firstName = firstName.trim();
+      lastName = lastName.trim();
+      userId = userId.trim().toLowerCase();
+      email = email.trim().toLowerCase();
       let checkIfUserExists = await getUserByUserId(userId);
       if (!checkIfUserExists.boolean) {
         let addUserResult = await addUser(
@@ -94,6 +98,7 @@ router
           password,
           email
         );
+        console.log("userAdded", addUserResult);
         if (addUserResult.boolean) {
           return res.redirect("/signin");
         }

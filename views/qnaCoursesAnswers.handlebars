@@ -69,11 +69,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button
-              type="submit"
-              id="add-answer"
-              class="btn btn-primary"
-            >
+            <button type="submit" id="add-answer" class="btn btn-primary">
               POST
             </button>
           </div>
@@ -82,19 +78,30 @@
     </div>
 
     <!-- Answers Display -->
-    {{#if answersData}}
+    {{#if answersInfo}}
       <div class="border border-start-0 border-end-0 m-3">
-        {{#each answersData.answers}}
+        {{#each answersInfo}}
           <div
             class="card m-4 border-0 mx-2 my-4 bg-white"
             data-answer-id="{{answerId}}"
           >
-            <div class="card-header border-0 bg-white">
-              <h5>{{../answersData.userId}}</h5>
+            <div
+              class="card-header border-0 bg-white d-flex justify-content-between"
+            >
+              <h5 id="answer-user-id">{{answerUserId}}</h5>
+              <div class="d-flex gap-2" id="del-edit-container">
+                {{#if isUser}}
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    id="delete-btn-{{answerId}}"
+                  >DEL</button>
+                {{/if}}
+              </div>
             </div>
+
             <div class="card-body px-4 py-2 bg-white">
               <p class="card-text">{{answer}}</p>
-              <p class="" id="question-creation-date">{{createdAt}}</p>
+              <p class="" id="answer-creation-date">{{createdAt}}</p>
               <div class="d-flex gap-2 w-auto">
                 <div
                   class="d-flex justify-content-center align-items-center gap-1 text-center border rounded-pill p-1"
@@ -106,7 +113,10 @@
                   >
                     <i class="bi bi-hand-thumbs-up"></i>
                   </button>
-                  <p class="align-items-center m-0" id="like-count">0</p>
+                  <p
+                    class="align-items-center m-0"
+                    id="like-count"
+                  >{{likes}}</p>
                 </div>
               </div>
             </div>
@@ -120,6 +130,7 @@
         </div>
       </div>
     {{/if}}
+
   </section>
   <script type="module" src="/public/js/answers.js"></script>
 </main>

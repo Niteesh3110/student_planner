@@ -15,6 +15,7 @@ import {
   addAnswersByUserId,
   checkIfAnswerLiked,
   updateLike,
+  deleteAnswer,
 } from "../data/qna.js";
 
 router.route("/").get(async (req, res) => {
@@ -39,6 +40,14 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
     const result = await getQuestionsByCourseCode(courseCodeDisplay);
     if (result.boolean) {
       let questionData = result.data;
+      const userId = req.session.user.userId;
+      for (let questions of questionData) {
+        if (questions.userId === userId) {
+          questions.userQuestion = true;
+        } else {
+          questions.userQuestion = false;
+        }
+      }
       let courseDisplay = {
         courseCodeDisplay: courseCodeDisplay,
         courseNameDisplay: courseNameDisplay,
@@ -74,6 +83,7 @@ router.route("/questions/:courseCode/:courseName").get(async (req, res) => {
 router.route("/questions/post").post(async (req, res) => {
   try {
     let { userId, title, description, courseCode, createdAt } = req.body; // TEMP USER ID
+    console.log(req.body);
     let response = await addQuestionByUserId(
       userId,
       title,
@@ -81,13 +91,14 @@ router.route("/questions/post").post(async (req, res) => {
       courseCode,
       createdAt
     );
+    console.log("adding question response in routes", response);
     if (response.boolean) {
       return res
         .status(200)
         .json({ boolean: response.boolean, questionId: response.questionId });
     } else {
       return res
-        .status(200)
+        .status(response.status)
         .json({ boolean: response.boolean, error: response.error });
     }
   } catch (error) {
@@ -101,7 +112,7 @@ router.route("/questions/post").post(async (req, res) => {
 router.route("/questions/get").get(async (req, res) => {
   try {
     let response = await getAllQuestions();
-    console.log(response);
+    // console.log(response);
     if (response.boolean) {
       return res
         .status(200)
@@ -119,26 +130,37 @@ router.route("/questions/get").get(async (req, res) => {
   }
 });
 
-router.route("/questions/meToo/:func/:questionId").patch(async (req, res) => {
-  try {
-    const questionId = req.params.questionId.trim();
-    const func = req.params.func.trim();
-    let userId = req.session.user.userId;
-    await checkUpdateMeTooInput(questionId, func);
-    const result = await updateMeToo(userId, questionId, func);
-    if (result.boolean) {
-      return res.status(200).json({ boolean: true, message: "meTooUpdated" });
-    } else {
-      return res.status(200).json({ boolean: false, error: result.error });
+router
+  .route("/questions/meToo/:func/:questionId/:questionUserId")
+  .patch(async (req, res) => {
+    try {
+      const questionId = req.params.questionId.trim();
+      const func = req.params.func.trim();
+      const questionUserId = req.params.questionUserId.trim();
+      let userId = req.session.user.userId;
+      console.log(
+        `UpdateMeToo Route: userId: ${userId}, questionUserId: ${questionUserId}, questionId: ${questionId}, func: ${func}`
+      );
+      await checkUpdateMeTooInput(questionId, func);
+      const result = await updateMeToo(
+        userId,
+        questionUserId,
+        questionId,
+        func
+      );
+      if (result.boolean) {
+        return res.status(200).json({ boolean: true, message: "meTooUpdated" });
+      } else {
+        return res.status(200).json({ boolean: false, error: result.error });
+      }
+    } catch (error) {
+      console.error("route error", error);
+      return res.status(500).json({
+        boolean: false,
+        error: `Something went wrong in updating meToo ${error}`,
+      });
     }
-  } catch (error) {
-    console.error("route error", error);
-    return res.status(500).json({
-      boolean: false,
-      error: `Something went wrong in updating meToo ${error}`,
-    });
-  }
-});
+  });
 
 router
   .route("/questions/meToo/checkMeTooState/:questionId")
@@ -192,15 +214,30 @@ router.route("/ans/:questionId/:questionUserId").get(async (req, res) => {
       .json({ error: "Invalid questionId or questionUserId" });
   questionId = questionId.trim();
   questionUserId = questionUserId.trim();
+  const userId = req.session.user.userId.trim();
   let answersData = await getAnswersByQuestionId(questionUserId, questionId);
   let questionData = await getQuestionsByUserId(questionUserId, questionId);
-  const answers = answersData.data;
-  const questions = questionData.data;
-  questions.questionUserId = questionUserId;
-  console.log(answers);
-  const inputObj = { answersData: answers, questions };
-  console.log(inputObj);
-  return res.status(200).render("qnaCoursesAnswers", inputObj);
+  const Allanswers = answersData.data;
+  if (!Allanswers || Allanswers.length === 0) {
+    const questions = questionData.data;
+    questions.questionUserId = questionUserId;
+    const inputObj = { questions };
+    console.log("inputObj in routes", inputObj);
+    return res.status(200).render("qnaCoursesAnswers", inputObj);
+  } else {
+    for (let answers of Allanswers) {
+      if (answers.answerUserId === userId) {
+        answers.isUser = true;
+      } else {
+        answers.isUser = false;
+      }
+    }
+    const questions = questionData.data;
+    questions.questionUserId = questionUserId;
+    const inputObj = { answersInfo: Allanswers, questions };
+    console.log("inputObj in routes", inputObj);
+    return res.status(200).render("qnaCoursesAnswers", inputObj);
+  }
 });
 
 router.route("/ans/post").post(async (req, res) => {
@@ -252,11 +289,52 @@ router.route("/ans/updateLike").patch(async (req, res) => {
   try {
     const userId = req.session.user.userId;
     if (!userId) return res.status(400).json({ error: "Invalid UserId" });
-    let { answerId, questionId, func } = req.body;
-    await checkLikeInput(answerId, questionId, func);
-    // const result = await
+    let { answerId, questionId, answerUserId, func } = req.body;
+    await checkLikeInput(answerUserId, answerId, questionId, func);
+    console.log("addLike Route:", req.body);
+    const result = await updateLike(
+      userId,
+      answerUserId,
+      answerId,
+      questionId,
+      func
+    );
+    if (result.boolean) {
+      return res.status(200).json({ boolean: true, message: "Like updated" });
+    } else {
+      return res.status(200).json({ boolean: false, error: result.error });
+    }
   } catch (error) {
-    //
+    console.error("route error", error);
+    return res.status(500).json({
+      boolean: false,
+      error: `Something went wrong in updating meToo ${error}`,
+    });
+  }
+});
+
+router.route("/ans/delete/:answerId/:questionId").delete(async (req, res) => {
+  const answerId = req.params.answerId.trim();
+  const quesitonId = req.params.questionId.trim();
+  let userId;
+  if (!answerId || !quesitonId) {
+    return res.status(400).json({ boolean: false, error: "Invalid Input" });
+  }
+  if (req.session.user) {
+    userId = req.session.user.userId;
+    if (!userId || userId.trim().length === 0) {
+      return res.status(404).json({ boolean: false, error: "User not found!" });
+    }
+  } else {
+    return res.status(401).json({ boolean: false, error: "Unauthorized" });
+  }
+  let result = await deleteAnswer(userId, answerId, quesitonId);
+  if (result.boolean) {
+    return res.status(200).json({ boolean: true });
+  } else {
+    return res
+      .status(400)
+      .json({ boolean: false, error: "Could not delete answer" });
   }
 });
 
