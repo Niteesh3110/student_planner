@@ -218,18 +218,26 @@ router.route("/ans/:questionId/:questionUserId").get(async (req, res) => {
   let answersData = await getAnswersByQuestionId(questionUserId, questionId);
   let questionData = await getQuestionsByUserId(questionUserId, questionId);
   const Allanswers = answersData.data;
-  for (let answers of Allanswers) {
-    if (answers.answerUserId === userId) {
-      answers.isUser = true;
-    } else {
-      answers.isUser = false;
+  if (!Allanswers || Allanswers.length === 0) {
+    const questions = questionData.data;
+    questions.questionUserId = questionUserId;
+    const inputObj = { questions };
+    console.log("inputObj in routes", inputObj);
+    return res.status(200).render("qnaCoursesAnswers", inputObj);
+  } else {
+    for (let answers of Allanswers) {
+      if (answers.answerUserId === userId) {
+        answers.isUser = true;
+      } else {
+        answers.isUser = false;
+      }
     }
+    const questions = questionData.data;
+    questions.questionUserId = questionUserId;
+    const inputObj = { answersInfo: Allanswers, questions };
+    console.log("inputObj in routes", inputObj);
+    return res.status(200).render("qnaCoursesAnswers", inputObj);
   }
-  const questions = questionData.data;
-  questions.questionUserId = questionUserId;
-  const inputObj = { answersInfo: Allanswers, questions };
-  console.log("inputObj in routes", inputObj);
-  return res.status(200).render("qnaCoursesAnswers", inputObj);
 });
 
 router.route("/ans/post").post(async (req, res) => {
