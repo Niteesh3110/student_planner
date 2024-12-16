@@ -2,7 +2,6 @@ import mongodb from "mongodb";
 import { ObjectId } from "mongodb";
 import { dbConnection, closeConnection } from "../config/mongoConnection.js";
 import { questions, users } from "../config/mongoCollection.js";
-import { question } from "readline-sync";
 
 const db = await dbConnection();
 const qCol = await questions();

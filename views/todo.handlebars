@@ -1,0 +1,38 @@
+<main>  
+    <div class="container mt-4">
+        <h1 class="text-center">To-Do List</h1>
+
+        <form id="addTaskForm" class="d-flex mb-4">
+            <input type="text" class="form-control me-2" id="taskHeader" placeholder="Enter task header" required>
+            <button type="submit" class="btn btn-primary">Add Task</button>
+        </form>
+
+        <div id="taskContainer" class="row g-3">
+            {{#if tasks.length}}
+                {{#each tasks}}
+                    <div class="col-md-3">
+                        <div class="card text-bg-light">
+                            <div class="card-header">
+                                {{header}}
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">{{text}}</p>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button class="btn btn-sm btn-secondary me-2" onclick="startEditTask('{{_id}}', this)">
+                                        <i class="bi bi-pen"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteTask('{{_id}}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            {{else}}
+                <p>No tasks found. Add your first task!</p>
+            {{/if}}
+        </div>
+    </div>
+    <script type="module" src="/public/js/todo.js"></script>
+</main>
