@@ -19,7 +19,7 @@ if (theForm) {
     errorDiv.innerHTML = "";
     errorDiv.hidden = true;
 
-    if (textForm.value == "") {
+    if (textForm.value.trim() === "") {
       event.preventDefault();
       errorDiv.hidden = false;
       errorDiv.innerHTML = "Error: You cannot submit an empty query!";
@@ -36,7 +36,7 @@ if (fileForm) {
     errorDiv.innerHTML = "";
     errorDiv.hidden = true;
 
-    if (userFile.files.length == 0) {
+    if (userFile.files.length === 0) {
       event.preventDefault();
       errorDiv.hidden = false;
       errorDiv.innerHTML = "Error: You must submit a file!";

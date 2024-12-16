@@ -1,6 +1,7 @@
 import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from 'fs';
+import { virusScan } from '../tasks/virus_scanning.js'
 
 let doneBefore = false;
 let holder = "";
@@ -29,19 +30,25 @@ router
 
         // Code for file scanning here.
 
+        let viruses = await virusScan(fileGiven.tempFilePath);
+
+        if(viruses.CleanResult == false){
+          errors.push("Error: File uploaded contains a virus!")
+          return res.status(400).render('proofreading', {hasErrors: true, errors: errors});
+        }
+       
         data = fs.readFileSync(fileGiven.tempFilePath, 'utf-8'); 
       }
-
-      else{
-        if (doneBefore && holder == req.body.givenText){
-          doneBefore = false;
-          holder = null;
-          return res.status(200).render("proofreading");
-        }
-        else {
-          doneBefore = true;
-          holder = theBody;
-        }
+      
+      if (doneBefore && holder == req.body.givenText) {
+        doneBefore = false;
+        holder = null;
+        return res.status(200).render("proofreading");
+      } 
+      
+      else {
+        doneBefore = true;
+        holder = theBody;
       }
 
       const genAI = new GoogleGenerativeAI(
@@ -58,8 +65,8 @@ router
 
       let finalResult = result.response.text();
 
-      return res.status(200).render('proofreading', {results: finalResult});
+      return res.status(200).render("proofreading", { results: finalResult });
     
-    
-});
+  });
+
 export default router;
