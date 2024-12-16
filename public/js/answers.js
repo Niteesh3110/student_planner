@@ -1,6 +1,3 @@
-import e from "express";
-import { event } from "../../config/mongoCollection";
-
 // APIs
 async function getUserId() {
   try {
@@ -43,7 +40,23 @@ async function addAnswersApiCall(questionId, answer, createdAt) {
   }
 }
 
-export async function checkIfAnswerLiked(questionId, answerId) {
+async function updateLike(answerUserId, answerId, questionId, func) {
+  let response = await axios.patch("http://localhost:3000/qna/ans/updateLike", {
+    answerUserId,
+    answerId,
+    questionId,
+    func,
+  });
+  if (response.data.boolean) {
+    console.log(response.data);
+    return response.data.boolean;
+  } else {
+    console.log(response.data);
+    return response.data.boolean;
+  }
+}
+
+async function checkIfAnswerLiked(questionId, answerId) {
   try {
     let response = await axios.get(
       `http://localhost:3000/qna/ans/CheckLikeState/${questionId}/${answerId}`
@@ -90,7 +103,6 @@ addAnswerButton.addEventListener("click", async () => {
 document.addEventListener("DOMContentLoaded", async () => {
   const questionContainer = document.getElementById("question-container");
   const questionId = questionContainer.getAttribute("data-question-id");
-
   const answersElement = document.querySelectorAll("[data-answer-id]");
 
   for (const answers of answersElement) {
@@ -99,6 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const likeCount = answers.querySelector("#like-count").innerText;
     if (answerId && likeBtn && likeCount) {
       const liked = await checkIfAnswerLiked(questionId, answerId);
+      console.log(liked);
 
       // Update button state
       if (liked) {
@@ -118,7 +131,39 @@ document.addEventListener("DOMContentLoaded", async () => {
       const cardBody = event.target.closest("[data-answer-id]");
       if (cardBody) {
         try {
-        } catch (error) {}
+          console.log(cardBody);
+          const answerUserIdElement = cardBody.querySelector("#answer-user-id");
+          const answerUserId = answerUserIdElement.textContent.trim();
+          const answerId = cardBody.getAttribute("data-answer-id");
+          const likeButton = cardBody.querySelector("#like-btn");
+          const likeCountElement = cardBody.querySelector("#like-count");
+
+          let likeCount = parseInt(likeCountElement.textContent, 10);
+          console.log(likeCount);
+          const isPressed = likeButton.getAttribute("aria-pressed") === "true";
+
+          if (
+            !isPressed &&
+            (await updateLike(answerUserId, answerId, questionId, "inc"))
+          ) {
+            likeCount++;
+            likeButton.setAttribute("aria-pressed", "true");
+            likeButton.classList.add("active");
+            likeButton.classList.remove("deactive");
+          } else if (
+            isPressed &&
+            (await updateLike(answerUserId, answerId, questionId, "dec"))
+          ) {
+            likeCount = Math.max(likeCount - 1, 0);
+            likeButton.setAttribute("aria-pressed", "false");
+            likeButton.classList.add("deactive");
+            likeButton.classList.remove("active");
+          }
+
+          likeCountElement.textContent = likeCount;
+        } catch (error) {
+          console.error("An error occurred:", error);
+        }
       }
     }
   });
