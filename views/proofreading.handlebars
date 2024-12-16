@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <main
   class="vh-100 w-100 d-flex justify-content-center align-items-center gap-4"
 >
@@ -7,7 +6,13 @@
     class="card border-light p-3"
     style="width: 40%;"
   >
-    <div class="card-header text-center">Upload file</div>
+    <div class="card-header text-center">
+      <form method="POST" id="fileForm"  enctype="multipart/form-data" action="/proofread">
+          <label for="userFile">Upload text file to be proofread here:</label><br>
+          <input type="file" name="userFile" id="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
+          <button type="submit">Upload File</button>
+      </form> 
+    </div>
     <div class="card-body">
       <form method="POST" action="/proofread">
         <label for="givenText">Paste the text you want proofread here:</label><br
@@ -20,23 +25,6 @@
         ></textarea>
         <button type="submit" class="btn btn-primary">Upload Text</button>
       </form>
-=======
-<main> 
-    <p></p><br>
-    <p></p><br>
->>>>>>> 5b76b35e23b3fc93f35e46192fd00a5c8ffb0413
-
-<form method="POST" id="theForm" action="/">
-    <label for="givenText">Paste the text you want proofread here:</label><br>
-    <input type="text" name="givenText" id="givenText"><br>
-    <button type="submit">Upload Text</button>
-</form> <br>
-
-<form method="POST" id="fileForm"  enctype="multipart/form-data" action="/">
-     <label for="userFile">Or upload the text file you want proofread here:</label><br>
-    <input type="file" name="userFile" id="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
-    <button type="submit">Upload File</button>
-</form> <br>
 
     {{#if hasErrors}}
     <ul class="hasErrors">
@@ -62,34 +50,6 @@
 
     {{/if}}
 
-    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <script src='../public/js/proofreading.js'></script>
 
-<<<<<<< HEAD
-  <div
-    id="result-container"
-    class="card border-light p-3 h-auto"
-    style="width: 40%;"
-  >
-    <div class="card-header text-center">
-      <p>Here is where your proofread and grammar-checked file or essay will be
-        once it's processed:</p>
-    </div>
-    <div class="card-body h-100 w-100 scrollable-container">
-      {{#if results}}
-        <div name="results" id="results" class="mb-3">{{results}}</div>
-        <button onclick="copyPaste()" class="btn btn-secondary">Copy text</button>
-        <script>
-          function copyPaste() { var theDiv =
-          document.getElementById('results'); var copyText = theDiv.textContent;
-          navigator.clipboard.writeText(copyText); alert('Copied the text to
-          your clipboard!'); }
-        </script>
-      {{else}}
-        <div name="results" id="results"></div>
-      {{/if}}
-    </div>
-  </div>
-=======
->>>>>>> 5b76b35e23b3fc93f35e46192fd00a5c8ffb0413
 </main>
