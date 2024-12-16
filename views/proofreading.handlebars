@@ -6,13 +6,7 @@
     class="card border-light p-3"
     style="width: 40%;"
   >
-    <div class="card-header text-center">
-      <form method="POST" id="fileForm"  enctype="multipart/form-data" action="/proofread">
-          <label for="userFile">Upload text file to be proofread here:</label><br>
-          <input type="file" name="userFile" id="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
-          <button type="submit">Upload File</button>
-      </form> 
-    </div>
+    <div class="card-header text-center">Upload file</div>
     <div class="card-body">
       <form method="POST" action="/proofread">
         <label for="givenText">Paste the text you want proofread here:</label><br
@@ -25,6 +19,18 @@
         ></textarea>
         <button type="submit" class="btn btn-primary">Upload Text</button>
       </form>
+
+<form method="POST" id="theForm" action="/">
+    <label for="givenText">Paste the text you want proofread here:</label><br>
+    <input type="text" name="givenText" id="givenText"><br>
+    <button type="submit">Upload Text</button>
+</form>
+
+<form method="POST" id="fileForm"  enctype="multipart/form-data" action="/">
+     <label for="userFile">Or upload the text file you want proofread here:</label><br>
+    <input type="file" name="userFile" id="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
+    <button type="submit">Upload File</button>
+</form>
 
     {{#if hasErrors}}
     <ul class="hasErrors">
@@ -50,6 +56,7 @@
 
     {{/if}}
 
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <script src='../public/js/proofreading.js'></script>
 
 </main>
