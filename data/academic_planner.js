@@ -131,6 +131,27 @@ export async function removeCourseTree(userId, courseCode) {
     return { boolean: false, error: `Something went wrong ${error}` };
   }
 }
+
+export async function initializeUserTree(userId) {
+  try {
+    await validateUserId(userId);
+    const inputObj = { userId, tree: { name: "CS", children: [] } };
+    let result = await treeCol.insertOne({ inputObj });
+    console.log("initTree", result);
+    if (result.acknowledged) {
+      return { boolean: true, status: 200 };
+    } else {
+      return { boolean: false, status: 400, error: "Could not add user tree" };
+    }
+  } catch (error) {
+    return {
+      boolean: false,
+      status: 500,
+      error: `Something went wrong ${error}`,
+    };
+  }
+}
+
 // console.log(await getAllCorePathCourses());
 // console.log(await getCourseByCourseCode("CS_546"));
 // console.log(await getCourseNameAndPrereq());

@@ -48,10 +48,10 @@ async function addQuestionApiCall(
   }
 }
 
-async function updateMeToo(questionId, func) {
+async function updateMeToo(questionUserId, questionId, func) {
   try {
     let response = await axios.patch(
-      `http://localhost:3000/qna/questions/meToo/${func}/${questionId}`
+      `http://localhost:3000/qna/questions/meToo/${func}/${questionId}/${questionUserId}`
     );
     if (response.data.boolean) {
       return true;
@@ -108,9 +108,11 @@ async function answerPostApi(questionUserId, questionId) {
 // Question onCLick Event
 async function addQuestion() {
   const userId = await getUserId();
-  const title = document.getElementById("question-title").value;
+  const title = document.getElementById("question-title").value.trim();
   if (title.trim().length === 0) return false;
-  const description = document.getElementById("question-description").value;
+  const description = document
+    .getElementById("question-description")
+    .value.trim();
   if (description.trim().length === 0) return false;
   const createdAt = new Date().toISOString().split("T")[0];
   const courseCodeName =
@@ -186,8 +188,6 @@ document.addEventListener("click", async (event) => {
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("DOM is ready!");
-
   const meTooButtonList = document.querySelectorAll("[data-question-id]");
 
   for (const buttonContainer of meTooButtonList) {
@@ -218,19 +218,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       const cardBody = event.target.closest("[data-question-id]");
       if (cardBody) {
         try {
+          console.log(cardBody);
           const questionId = cardBody.getAttribute("data-question-id");
+          const questionUserId = cardBody.getAttribute("data-question-user-id");
           const meTooButton = cardBody.querySelector("#me-too");
           const meTooCountElement = cardBody.querySelector("#me-too-count");
+          console.log(questionId, questionUserId);
 
           let meTooCount = parseInt(meTooCountElement.textContent, 10);
           const isPressed = meTooButton.getAttribute("aria-pressed") === "true";
 
-          if (!isPressed && (await updateMeToo(questionId, "inc"))) {
+          if (
+            !isPressed &&
+            (await updateMeToo(questionUserId, questionId, "inc"))
+          ) {
             meTooCount++;
             meTooButton.setAttribute("aria-pressed", "true");
             meTooButton.classList.add("active");
             meTooButton.classList.remove("deactive");
-          } else if (isPressed && (await updateMeToo(questionId, "dec"))) {
+          } else if (
+            isPressed &&
+            (await updateMeToo(questionUserId, questionId, "dec"))
+          ) {
             meTooCount = Math.max(meTooCount - 1, 0);
             meTooButton.setAttribute("aria-pressed", "false");
             meTooButton.classList.add("deactive");

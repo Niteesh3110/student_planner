@@ -47,38 +47,48 @@ export async function addQuestionByUserId(
   courseCode,
   createdAt
 ) {
+  if (!userId || !title || !description || !courseCode || !createdAt) {
+    return { boolean: false, status: 400, error: "Invalid Input Passed" };
+  }
+  userId = userId.trim().toLowerCase();
+  console.log(userId, title, description, courseCode, createdAt);
   const questionId = new ObjectId();
-  let inputObj = {
+  let checkIfUserExists = await qCol.findOne({
     userId: userId,
-    questions: [
+  });
+  if (checkIfUserExists) {
+    let result = await qCol.updateOne(
+      { userId: userId },
       {
-        questionId,
-        title: title,
-        description: description,
-        meTooCount: 0,
-        courseCode: courseCode,
-        createdAt: createdAt,
-      },
-    ],
-  };
-  let checkIfUserExists = await qCol.findOne({ userId });
-  if (!checkIfUserExists) {
-    let result = await qCol.insertOne(inputObj);
-    if (result.acknowledged) {
+        $push: {
+          questions: {
+            questionId,
+            title: title,
+            description: description,
+            meTooCount: 0,
+            courseCode: courseCode,
+            createdAt: createdAt,
+          },
+        },
+      }
+    );
+    // let result = await qCol.insertOne(inputObj);
+    if (result.acknowledged && result.modifiedCount >= 1) {
       return { boolean: true, questionId };
     } else {
       return { boolean: false, error: "Could not add the question" };
     }
   } else {
-    let result = await qCol.updateOne(
-      { userId: userId },
-      { $push: { questions: inputObj.questions[0] } }
-    );
-    if (result.acknowledged && result.modifiedCount === 1) {
-      return { boolean: true, questionId };
-    } else {
-      return { boolean: false, error: "Could not add the questions" };
-    }
+    return { boolean: false, status: 404, error: "User not found" };
+    // let result = await qCol.updateOne(
+    //   { userId: userId },
+    //   { $push: { questions: inputObj.questions[0] } }
+    // );
+    // if (result.acknowledged && result.modifiedCount === 1) {
+    //   return { boolean: true, questionId };
+    // } else {
+    //   return { boolean: false, error: "Could not add the questions" };
+    // }
   }
 }
 
@@ -203,13 +213,17 @@ export async function removeLikedQuestion(userId, questionId) {
   }
 }
 
-export async function updateMeToo(userId, questionId, func) {
+export async function updateMeToo(userId, questionUserId, questionId, func) {
   try {
+    console.log(
+      `UpdateMeToo DataBase: userId: ${userId}, questionUserId: ${questionUserId}, questionId: ${questionId}, func: ${func}`
+    );
     let result;
     let likedQuestionUpdate;
     if (func === "inc") {
       result = await qCol.updateOne(
         {
+          userId: questionUserId,
           questions: {
             $elemMatch: {
               questionId: ObjectId.createFromHexString(questionId),
@@ -223,6 +237,7 @@ export async function updateMeToo(userId, questionId, func) {
     } else if (func === "dec") {
       result = await qCol.updateOne(
         {
+          userId: questionUserId,
           questions: {
             $elemMatch: {
               questionId: ObjectId.createFromHexString(questionId),
@@ -265,6 +280,43 @@ export async function updateMeToo(userId, questionId, func) {
   // }
 }
 
+export async function removeLikedQuestionAll(questionId) {
+  try {
+    if (!questionId || typeof questionId !== "string") {
+      return { boolean: false, status: 400, error: "Invalid Input" };
+    }
+    const result = await qCol.updateMany(
+      {
+        "likedQuestions.questionId": questionId,
+      },
+      {
+        $pull: {
+          likedQuestions: { questionId: questionId },
+        },
+      }
+    );
+    if (
+      result.acknowledged &&
+      result.matchedCount >= 1 &&
+      result.modifiedCount >= 1
+    ) {
+      return { boolean: true, status: 200 };
+    } else {
+      return {
+        boolean: false,
+        status: 400,
+        error: "Could not remove likedQuestions",
+      };
+    }
+  } catch (error) {
+    return {
+      boolean: false,
+      status: 500,
+      error: `Something went wrong ${error}`,
+    };
+  }
+}
+
 export async function deleteQuestion(userId, questionId) {
   try {
     if (
@@ -290,11 +342,14 @@ export async function deleteQuestion(userId, questionId) {
         { $pull: { questions: { questionId } } }
       );
       if (result.acknowledged && result.modifiedCount === 1) {
-        return {
-          boolean: true,
-          status: 200,
-          message: "Question deleted successfully",
-        };
+        let result = await removeLikedQuestionAll(questionId);
+        if (result.boolean)
+          return {
+            boolean: true,
+            status: 200,
+            message: "Question deleted successfully",
+          };
+        return result;
       } else {
         return {
           boolean: false,
@@ -318,35 +373,29 @@ export async function deleteQuestion(userId, questionId) {
 // Answer
 export async function getAnswersByQuestionId(userId, questionId) {
   try {
-    // let answersList = [];
+    let answersList = [];
     questionId = ObjectId.createFromHexString(questionId);
-    let checkIfUserAskedTheQuestion = await qCol.findOne({
-      userId: userId,
-      questions: { $elemMatch: { questionId: questionId } },
-    });
-    if (checkIfUserAskedTheQuestion) {
-      let result = await qCol
-        .find({
-          userId: userId,
-          answers: { $elemMatch: { questionId: questionId } },
-        })
-        .toArray();
-      const answers = result[0].answers;
-      for (let answer of answers) {
-        answer.answerId = answer.answerId.toString();
-        answer.questionId = answer.questionId.toString();
+    let result = await qCol
+      .find({
+        answers: { $elemMatch: { questionId: questionId } },
+      })
+      .toArray();
+    for (let resultData of result) {
+      if (resultData.answers) {
+        for (let answerData of resultData.answers) {
+          console.log("ans data", answerData);
+          answerData.answerId = answerData.answerId.toString();
+          answerData.questionId = answerData.questionId.toString();
+          answerData.answerUserId = resultData.userId;
+          answersList.push(answerData);
+        }
       }
-      const outputData = {
-        userId: result[0].userId,
-        answers,
-      };
-      if (result.length !== 0) {
-        return { boolean: true, status: 200, data: outputData };
-      } else {
-        return { boolean: false, status: 404, error: "No answers found" };
-      }
+    }
+    console.log("all answers list", answersList);
+    if (result.length !== 0) {
+      return { boolean: true, status: 200, data: answersList };
     } else {
-      console.log("question not found");
+      return { boolean: false, status: 404, error: "No answers found" };
     }
   } catch (error) {
     console.error(error);
@@ -438,6 +487,10 @@ export async function addLikedAnswers(userId, answerId, questionId) {
         error: "Invalid userID or answerId or questionId",
       };
     }
+    const flag = await checkIfAnswerLiked(userId, answerId, questionId).boolean;
+    if (flag) {
+      return false;
+    }
     let result = await qCol.updateOne(
       { userId: userId },
       { $push: { likedAnswers: { answerId, questionId } } }
@@ -460,14 +513,32 @@ export async function addLikedAnswers(userId, answerId, questionId) {
   }
 }
 
-export async function removeLikedAnswer(userId, answerId, quesitonId) {
+export async function removeLikedAnswer(userId, answerId, questionId) {
   try {
+    console.log(userId, answerId, questionId);
+    if (!userId || !answerId || !questionId) {
+      return { boolean: false, status: 400, error: "Invalid Input" };
+    }
+    const flag = await checkIfAnswerLiked(userId, answerId, questionId);
+    answerId = answerId.toString().trim();
+    questionId = questionId.toString().trim();
+    if (!flag) {
+      return false;
+    }
     let result = await qCol.updateOne(
       {
         userId: userId,
       },
-      { $pull: { likedAnswers: { answerId, quesitonId } } }
+      {
+        $pull: {
+          likedAnswers: {
+            answerId,
+            questionId,
+          },
+        },
+      }
     );
+    console.log("remove liked", result);
     if (
       result.acknowledged &&
       result.modifiedCount === 1 &&
@@ -490,13 +561,21 @@ export async function removeLikedAnswer(userId, answerId, quesitonId) {
   }
 }
 
-export async function updateLike(userId, answerId, questionId, func) {
+export async function updateLike(
+  userId,
+  answerUserId,
+  answerId,
+  questionId,
+  func
+) {
   try {
     let result;
     let likedAnswerUpdate;
+
     if (func === "inc") {
       result = await qCol.updateOne(
         {
+          userId: answerUserId,
           answers: {
             $elemMatch: {
               answerId: ObjectId.createFromHexString(answerId),
@@ -506,11 +585,13 @@ export async function updateLike(userId, answerId, questionId, func) {
         },
         { $inc: { "answers.$.likes": 1 } }
       );
-      console.log("inc", result);
+      console.log("Increment Result:", result);
+
       likedAnswerUpdate = await addLikedAnswers(userId, answerId, questionId);
     } else if (func === "dec") {
       result = await qCol.updateOne(
         {
+          userId: answerUserId,
           answers: {
             $elemMatch: {
               answerId: ObjectId.createFromHexString(answerId),
@@ -520,23 +601,122 @@ export async function updateLike(userId, answerId, questionId, func) {
         },
         { $inc: { "answers.$.likes": -1 } }
       );
-      console.log("dec", result);
-      likedQuestionUpdate = await removeLikedAnswer(userId, questionId);
+      console.log("Decrement Result:", result);
+
+      likedAnswerUpdate = await removeLikedAnswer(userId, answerId, questionId);
+      console.log("Liked Answer Update:", likedAnswerUpdate);
     }
+
     if (!result) {
       return { boolean: false, error: "Could not update likes" };
     }
+
     if (
       result.acknowledged &&
       result.modifiedCount === 1 &&
       result.matchedCount === 1 &&
-      likedQuestionUpdate
+      likedAnswerUpdate
     ) {
       return { boolean: true };
     } else {
       return { boolean: false, error: "Could not update likes" };
     }
   } catch (error) {
-    return { boolean: false, error: `Something went wrong ${error}` };
+    return { boolean: false, error: `Something went wrong: ${error}` };
+  }
+}
+
+export async function removeLikedAnswerAll(answerId) {
+  try {
+    if (!answerId || typeof answerId !== "string") {
+      return { boolean: false, status: 400, error: "Invalid Input" };
+    }
+    const result = await qCol.updateMany(
+      {
+        "likedAnswers.answerId": answerId,
+      },
+      {
+        $pull: {
+          likedAnswers: { answerId: answerId },
+        },
+      }
+    );
+    if (
+      result.acknowledged &&
+      result.matchedCount >= 1 &&
+      result.modifiedCount >= 1
+    ) {
+      return { boolean: true, status: 200 };
+    } else {
+      return {
+        boolean: false,
+        status: 400,
+        error: "Could not remove likedAnswers",
+      };
+    }
+  } catch (error) {
+    return {
+      boolean: false,
+      status: 500,
+      error: `Something went wrong ${error}`,
+    };
+  }
+}
+
+export async function deleteAnswer(userId, answerId, questionId) {
+  try {
+    if (
+      !questionId ||
+      !answerId ||
+      typeof questionId !== "string" ||
+      typeof answerId !== "string" ||
+      questionId.trim().length === 0 ||
+      answerId.trim().length === 0
+    ) {
+      throw { status: 400, error: "Invalid question or answer Id" };
+    }
+    if (!userId || typeof userId !== "string" || userId.trim().length === 0) {
+      throw { status: 400, error: "Invalid userId" };
+    }
+    questionId = questionId.trim();
+    answerId = answerId.trim();
+    questionId = ObjectId.createFromHexString(questionId);
+    answerId = ObjectId.createFromHexString(answerId);
+    let checkIfUserAnswered = await qCol.findOne({
+      userId: userId,
+      answers: { $elemMatch: { questionId: questionId, answerId: answerId } },
+    });
+
+    if (checkIfUserAnswered) {
+      const result = await qCol.updateOne(
+        { userId: userId },
+        { $pull: { answers: { questionId, answerId } } }
+      );
+      if (result.acknowledged && result.modifiedCount === 1) {
+        let result = await removeLikedAnswerAll(answerId);
+        if (result.boolean)
+          return {
+            boolean: true,
+            status: 200,
+            message: "Question deleted successfully",
+          };
+        return result;
+      } else {
+        return {
+          boolean: false,
+          status: 400,
+          error: "Question deletion unseccessful",
+        };
+      }
+    } else {
+      return { boolean: false, status: 404, error: "User not found" };
+    }
+  } catch (error) {
+    console.error(error);
+    return {
+      boolean: false,
+      status: 500,
+      error: `Something went wrong ${error}`,
+    };
   }
 }

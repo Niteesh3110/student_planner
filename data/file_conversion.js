@@ -1,5 +1,5 @@
 import ConvertAPI from "convertapi";
-const convertapi = new ConvertAPI("secret_fepD2chDFjsEzSLn");
+const convertapi = new ConvertAPI(process.env.CONVERT_API);
 export { listOptions, startConversion };
 
 const conversionOptions = [

@@ -89,20 +89,19 @@
                 id="questionUserId"
               >{{userId}}</h5>
               <div class="d-flex gap-2" id="del-edit-container">
-                <button
-                  class="btn btn-outline-danger btn-sm"
-                  id="delete-btn"
-                >DEL</button>
-                <button
-                  class="btn btn-outline-warning btn-sm"
-                  id="edit-btn"
-                >EDIT</button>
+                {{#if userQuestion}}
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    id="delete-btn"
+                  >DEL</button>
+                {{/if}}
               </div>
             </div>
             <div
               class="card-body p-4"
               id="q-id"
               data-question-id="{{questionId}}"
+              data-question-user-id="{{userId}}"
             >
               <h5 class="card-title" id="question">{{title}}</h5>
               <p class="card-text" id="question-description">{{description}}</p>
