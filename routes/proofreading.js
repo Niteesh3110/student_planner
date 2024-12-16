@@ -1,16 +1,19 @@
 import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from 'fs';
+import { virusScan } from '../tasks/virus_scanning.js'
 
 let doneBefore = false;
 let holder = "";
 
 const router = express.Router();
 
-router.route("/").get(async (req, res) => {
-  return res.status(200).render("proofreading");
-}).post(async (req, res) => {
-    
+router
+  .route("/")
+  .get(async (req, res) => {
+    return res.status(200).render("proofreading");
+  })
+  .post(async (req, res) => {
     const theBody = req.body.givenText;
     const theFile = req.files;
     let data ;
@@ -27,22 +30,30 @@ router.route("/").get(async (req, res) => {
 
         // Code for file scanning here.
 
+        let viruses = await virusScan(fileGiven.tempFilePath);
+
+        if(viruses.CleanResult == false){
+          errors.push("Error: File uploaded contains a virus!")
+          return res.status(400).render('proofreading', {hasErrors: true, errors: errors});
+        }
+       
         data = fs.readFileSync(fileGiven.tempFilePath, 'utf-8'); 
       }
-
-      else{
-        if (doneBefore && holder == req.body.givenText){
-          doneBefore = false;
-          holder = null;
-          return res.status(200).render("proofreading");
-        }
-        else {
-          doneBefore = true;
-          holder = theBody;
-        }
+      
+      if (doneBefore && holder == req.body.givenText) {
+        doneBefore = false;
+        holder = null;
+        return res.status(200).render("proofreading");
+      } 
+      
+      else {
+        doneBefore = true;
+        holder = theBody;
       }
 
-      const genAI = new GoogleGenerativeAI("AIzaSyAMDWbHKmIoBxEZr_atsDdp-zVbQhSKAEQ");
+      const genAI = new GoogleGenerativeAI(
+        "AIzaSyAMDWbHKmIoBxEZr_atsDdp-zVbQhSKAEQ"
+      );
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       let prompt;
 
@@ -54,10 +65,8 @@ router.route("/").get(async (req, res) => {
 
       let finalResult = result.response.text();
 
-      return res.status(200).render('proofreading', {results: finalResult});
+      return res.status(200).render("proofreading", { results: finalResult });
     
-    
-});
-
+  });
 
 export default router;

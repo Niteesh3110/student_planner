@@ -65,3 +65,11 @@ body {
 .btn-danger {
   display: none;
 }
+
+/* Proofreading CSS */
+.scrollable-container {
+  width: 40%; /* Adjust width as needed */
+  max-height: 300px; /* Limit the height */
+  overflow-y: auto; /* Add vertical scroll when necessary */
+  padding: 1rem; /* Padding for inner spacing */
+}

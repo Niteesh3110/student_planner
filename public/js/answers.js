@@ -1,4 +1,27 @@
+import e from "express";
+import { event } from "../../config/mongoCollection";
+
 // APIs
+async function getUserId() {
+  try {
+    const response = await axios.get("http://localhost:3000/session/getUserId");
+    if (response.data.error) {
+      console.error(response.data.error);
+      return;
+    }
+    const userId = response.data.userId;
+    if (!userId) {
+      console.error("User not found");
+      return;
+    } else {
+      return userId;
+    }
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}
+
 async function addAnswersApiCall(questionId, answer, createdAt) {
   try {
     let response = await axios.post("http://localhost:3000/qna/ans/post", {
@@ -16,6 +39,22 @@ async function addAnswersApiCall(questionId, answer, createdAt) {
     }
   } catch (error) {
     console.error(`Something went wrong ${error}`);
+    return false;
+  }
+}
+
+export async function checkIfAnswerLiked(questionId, answerId) {
+  try {
+    let response = await axios.get(
+      `http://localhost:3000/qna/ans/CheckLikeState/${questionId}/${answerId}`
+    );
+    if (response.data.boolean) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
     return false;
   }
 }
@@ -59,7 +98,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     const likeBtn = answers.querySelector("#like-btn");
     const likeCount = answers.querySelector("#like-count").innerText;
     if (answerId && likeBtn && likeCount) {
-      //
+      const liked = await checkIfAnswerLiked(questionId, answerId);
+
+      // Update button state
+      if (liked) {
+        likeBtn.setAttribute("aria-pressed", "true");
+        likeBtn.classList.add("active");
+        likeBtn.classList.remove("deactive");
+      } else {
+        likeBtn.setAttribute("aria-pressed", "false");
+        likeBtn.classList.add("deactive");
+        likeBtn.classList.remove("active");
+      }
     }
   }
+
+  document.addEventListener("click", async (event) => {
+    if (event.target.closest("#like-btn")) {
+      const cardBody = event.target.closest("[data-answer-id]");
+      if (cardBody) {
+        try {
+        } catch (error) {}
+      }
+    }
+  });
 });
