@@ -48,7 +48,12 @@ export async function addUser(firstName, lastName, userId, password, email) {
     };
     let result = await userCol.insertOne(inputObj);
     if (result.acknowledged) {
-      return { boolean: true };
+      let initUserResult = await initUser(userId);
+      if (initUserResult.boolean) {
+        return { boolean: true };
+      } else {
+        return { boolean: false, error: initUser.error };
+      }
     } else {
       return { boolean: false, error: "Cannot add user" };
     }
@@ -57,58 +62,11 @@ export async function addUser(firstName, lastName, userId, password, email) {
   }
 }
 
-export async function initializeUserTree(userId) {
-  try {
-    await validateUserId(userId);
-    const inputObj = { userId, tree: { name: "CS", children: [] } };
-    let result = await treeCol.insertOne({ inputObj });
-    if (result.acknowledged) {
-      return { boolean: true, status: 200 };
-    } else {
-      return { boolean: false, status: 400, error: "Could not add user tree" };
-    }
-  } catch (error) {
-    return {
-      boolean: false,
-      status: 500,
-      error: `Something went wrong ${error}`,
-    };
-  }
-}
-
-// export async function initializeQuestionDocument(userId) {
-//   try {
-//     await validateUserId(userId);
-//     const inputObj = {
-//       userId,
-//       questions: [],
-//       likedQuestions: [],
-//       answers: [],
-//       likedAnswers: [],
-//     };
-//     let result = await qCol.insertOne({ inputObj });
-//     if (result.acknowledged) {
-//       return { boolean: true, status: 200 };
-//     } else {
-//       return {
-//         boolean: false,
-//         status: 400,
-//         error: "Could not initialize questions document",
-//       };
-//     }
-//   } catch (error) {
-//     return {
-//       boolean: false,
-//       status: 500,
-//       error: `Something went wrong ${error}`,
-//     };
-//   }
-// }
-
 export async function signIn(userId, password) {
   try {
     await validateUserId(userId);
     await validatePassword(password);
+    userId = userId.trim().toLowerCase();
     const result = await getUserByUserId(userId);
     if (result.boolean) {
       const userData = result.data;
@@ -123,5 +81,70 @@ export async function signIn(userId, password) {
     if (!error.boolean)
       return { boolean: false, error: `Something went wrong ${error.error}` };
     throw { error: `Something went wrong: Internal Server Error ${error}` };
+  }
+}
+
+export async function initializeUserTree(userId) {
+  try {
+    await validateUserId(userId);
+    const inputObj = { userId, tree: { name: "CS", children: [] } };
+    let result = await treeCol.insertOne(inputObj);
+    console.log("initTree", result);
+    if (result.acknowledged) {
+      return { boolean: true, status: 200 };
+    } else {
+      return { boolean: false, status: 400, error: "Could not add user tree" };
+    }
+  } catch (error) {
+    return {
+      boolean: false,
+      status: 500,
+      error: `Something went wrong ${error}`,
+    };
+  }
+}
+
+export async function initializeQuestionDoc(userId) {
+  try {
+    let checkIfUserSignedUp = await userCol.findOne({ userId });
+    if (!checkIfUserSignedUp) {
+      return { boolean: false, status: 400, error: "Unauthorized" };
+    }
+    if (!userId || typeof userId !== "string") {
+      if (userId.trim().length === 0) {
+        return { boolean: false, status: 400, error: "Invalid Input" };
+      }
+    }
+    let inputObj = {
+      userId,
+      questions: [],
+      likedQuestions: [],
+      answers: [],
+      likedAnswers: [],
+    };
+    const result = await qCol.insertOne(inputObj);
+    console.log("initQues", result);
+    if (result) {
+      return { boolean: true, status: 200 };
+    } else {
+      return { boolean: false, error: "Could not add user" };
+    }
+  } catch (error) {
+    return {
+      boolean: false,
+      status: 500,
+      error: `Something went wrong ${error}`,
+    };
+  }
+}
+
+export async function initUser(userId) {
+  let userQuestionInit = await initializeQuestionDoc(userId);
+  let userTreeInit = await initializeUserTree(userId);
+  console.log("Overall Init", userQuestionInit, userTreeInit);
+  if (userQuestionInit.boolean && userTreeInit.boolean) {
+    return { boolean: true };
+  } else {
+    return { boolean: false, error: "Could not init tree or question" };
   }
 }
