@@ -1,61 +1,101 @@
 <main
-  class="vh-100 w-100 d-flex justify-content-center align-items-center gap-4"
+  class="w-100 d-flex justify-content-center align-items-start gap-4 pt-5 mt-5"
 >
-  <div
-    id="file-upload-container"
-    class="card border-light p-3"
-    style="width: 40%;"
-  >
-    <div class="card-header text-center">Upload file</div>
-    <div class="card-body">
-      <form method="POST" id="theForm" action="/proofread">
-        <label for="givenText">Paste the text you want proofread here:</label><br
-        />
-        <textarea
-          type="text"
-          name="givenText"
-          class="form-control mb-3 h-75"
-          rows="7"
-        ></textarea>
-        <button type="submit" class="btn btn-primary">Upload Text</button>
-      </form>
+  <div class="container">
+    <div class="row w-100">
+      <!-- Upload Card -->
+      <div class="col-md-6 mb-4">
+        <div class="card border-light p-4 shadow-lg">
+          <div class="card-header text-center bg-primary text-white">
+            <h4>Upload or Paste Text for Proofreading</h4>
+          </div>
+          <div class="card-body">
+            <!-- Paste Text Form -->
+            <form method="POST" id="theForm" action="/proofread" class="mb-4">
+              <div class="form-group">
+                <label for="givenText">Paste the text you want proofread here:</label>
+                <textarea
+                  name="givenText"
+                  class="form-control mb-3"
+                  rows="7"
+                  placeholder="Paste your text here..."
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Upload Text</button>
+            </form>
 
-{{!-- <form method="POST" id="theForm" action="/">
-    <label for="givenText">Paste the text you want proofread here:</label><br>
-    <input type="text" name="givenText" id="givenText"><br>
-    <button type="submit">Upload Text</button>
-</form> --}}
+            <hr class="my-4" />
 
-<form method="POST" id="fileForm"  enctype="multipart/form-data" action="/proofread">
-     <label for="userFile">Or upload the text file you want proofread here:</label><br>
-    <input type="file" name="userFile" id="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
-    <button type="submit">Upload File</button>
-</form>
+            <!-- Upload File Form -->
+            <form
+              method="POST"
+              id="fileForm"
+              enctype="multipart/form-data"
+              action="/proofread"
+            >
+              <div class="form-group">
+                <label for="userFile">Or upload the text file you want proofread
+                  here:</label>
+                <input
+                  type="file"
+                  name="userFile"
+                  id="userFile"
+                  accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
+                  class="form-control-file mb-3"
+                />
+              </div>
+              <button type="submit" class="btn btn-secondary w-100">Upload File</button>
+            </form>
 
-    {{#if hasErrors}}
-    <ul class="hasErrors">
-        {{#each errors}}
-        <li class="errorServer">
-        {{this}}
-        </li>
-        {{/each}}
-    </ul>
-    {{/if}}
+            {{#if hasErrors}}
+              <ul class="list-unstyled text-danger">
+                {{#each errors}}
+                  <li class="errorServer">
+                    <i class="bi bi-exclamation-circle"></i>
+                    {{this}}
+                  </li>
+                {{/each}}
+              </ul>
+            {{/if}}
+          </div>
+        </div>
+      </div>
 
-   <div id="error" class="error" hidden>Hey you're not supposed to see this!</div>
-	<br>
+      <!-- Results Card -->
+      <div class="col-md-6 mb-4">
+        <div class="card border-light p-4 shadow-lg">
+          <div class="card-header text-center bg-success text-white">
+            <h4>Proofread Results</h4>
+          </div>
+          <div class="card-body">
+            <p>Here is where your proofread and grammar-checked text will appear
+              once it's processed:</p>
 
-    <p>Here is where your proofreaded and grammar checked file or essay will be once it's processed:</p>
-    {{#if results}}
-    <div name="results" id="results">{{results}}</div>
-    <button name="resultsButton" id="resultsButton">Copy text</button>
+            {{#if results}}
+              <div
+                id="results"
+                class="bg-light p-3 border rounded"
+                style="max-height: 400px; overflow-y: auto;"
+              >
+                {{results}}
+              </div>
+              <button
+                name="resultsButton"
+                id="resultsButton"
+                class="btn btn-link mt-2"
+              >Copy Text</button>
+            {{else}}
+              <div
+                id="results"
+                class="bg-light p-3 border rounded"
+                style="min-height: 100px;"
+              ></div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    {{else}}
-
-    <div name="results" id="results"></div>
-
-    {{/if}}
-
-    <script src='../public/js/proofreading.js'></script>
-
+  <script src="/public/js/proofreading.js"></script>
 </main>

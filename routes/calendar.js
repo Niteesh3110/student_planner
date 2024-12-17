@@ -69,8 +69,8 @@ router.get("/getEvents", async (req, res) => {
 
 router.post("/addEvent", async (req, res) => {
   try {
-    const userId = req.session.user.userId;
-    const { title, date, time } = req.body;
+    let userId = req.session.user.userId;
+    let { title, date, time } = req.body;
 
     title = title.trim();
     date = date.trim();
@@ -106,7 +106,7 @@ router.put("/updateEvent/:id", async (req, res) => {
   try {
     const userId = req.session.user.userId;
     const eventId = req.params.id;
-    const { title, date, time } = req.body;
+    let { title, date, time } = req.body;
 
     title = title.trim();
     date = date.trim();
@@ -115,7 +115,7 @@ router.put("/updateEvent/:id", async (req, res) => {
     date = sanitize(date);
     time = sanitize(time);
 
-    const updatedEvent = await updateEvent(userId, eventId, title, date, time);
+    let updatedEvent = await updateEvent(userId, eventId, title, date, time);
 
     console.log("Event updated successfully:", updatedEvent);
 

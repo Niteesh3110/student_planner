@@ -1,65 +1,89 @@
-<main>   
-    <h1>File Conversion</h1>
-    <h4>Instructions</h4>
-    <ol>
-        <li>Upload a file with the input below and selecting from your device.</li>
+<main class="container pt-2 mt-5">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 class="text-center mb-4">File Conversion</h1>
+
+      <h4>Instructions</h4>
+      <ol>
+        <li>Upload a file with the input below and select it from your device.</li>
         <li>Click the "Upload" button.</li>
-        <li>Once the file is uploaded, you will be given a list of conversion options. Select one.</li>
-        <li>Click the "Convert" button and you will be given a link to download your converted file.</li>
-    </ol>
+        <li>Once the file is uploaded, you will be given a list of conversion
+          options. Select one.</li>
+        <li>Click the "Convert" button and you will be given a link to download
+          your converted file.</li>
+      </ol>
 
-    <h4>Conversions Available</h4>
-        <ul>
-            <li>csv → pdf, xlsx</li>
-            <li>docx → jpg, pdf, png, tiff, txt, webp, xml</li>
-            <li>jpg → pdf, png, svg, tiff, webp</li>
-            <li>pdf → docx, pptx, xlsx</li>
-            <li>png → jpg, pdf, svg, tiff, webp</li>
-            <li>pptx → jpg, pdf, png, tiff, webp</li>
-            <li>txt → jpg</li>
-            <li>xlsx → csv, jpg, pdf, png, tiff, webp</li>
-            <li>xml → docx</li>
-        </ul>
+      <h4>Conversions Available</h4>
+      <ul>
+        <li>csv → pdf, xlsx</li>
+        <li>docx → jpg, pdf, png, tiff, txt, webp, xml</li>
+        <li>jpg → pdf, png, svg, tiff, webp</li>
+        <li>pdf → docx, pptx, xlsx</li>
+        <li>png → jpg, pdf, svg, tiff, webp</li>
+        <li>pptx → jpg, pdf, png, tiff, webp</li>
+        <li>txt → jpg</li>
+        <li>xlsx → csv, jpg, pdf, png, tiff, webp</li>
+        <li>xml → docx</li>
+      </ul>
 
-        <form action="/file_conversion/upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="file"/>
-            <button type="submit">Upload</button>
-        </form>
-
-        {{#if noFile}}
-            <p style="color: red;">Please upload a file to convert.</p>
-        {{/if}}
-
-        {{#if noOptions}}
-            <p style="color: red;">No conversion options available for that file.</p>
-        {{/if}}
-
-        {{#if badUpload}}
-            <p style="color: red;">Upload went wrong. Please try again.</p>
-        {{/if}}
-
-        {{#if badFile}}
-            <p style="color: red;">That file cannot be used.</p>
-        {{/if}}
-
-    {{#if options}}
-      <h5>Conversion options for "{{fileName}}" </h5>
-      <form action="/file_conversion/convert" method="post">
-        <input type="hidden" name="filePath" value="{{filePath}}" />
-        <select name="option">
-          {{#each options}}
-            <option value="{{this}}">{{this}}</option>
-          {{/each}}
-        </select>
-        <button type="submit">Convert</button>
+      <form
+        action="/file_conversion/upload"
+        method="post"
+        enctype="multipart/form-data"
+        class="mb-4"
+      >
+        <div class="form-group">
+          <label for="fileUpload">Upload a file</label>
+          <input
+            type="file"
+            name="file"
+            id="fileUpload"
+            class="form-control-file"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
       </form>
-    {{/if}}
 
-    {{#if conversionIncomplete}}
-      <p style="color: red;">Conversion went wrong. Please try again.</p>
-    {{/if}}
+      {{#if noFile}}
+        <p class="text-danger">Please upload a file to convert.</p>
+      {{/if}}
 
-    {{#if conversionComplete}}
-      <a href="{{conversionLink}}">Download converted file</a>
-    {{/if}}
+      {{#if noOptions}}
+        <p class="text-danger">No conversion options available for that file.</p>
+      {{/if}}
+
+      {{#if badUpload}}
+        <p class="text-danger">Upload went wrong. Please try again.</p>
+      {{/if}}
+
+      {{#if badFile}}
+        <p class="text-danger">That file cannot be used.</p>
+      {{/if}}
+
+      {{#if options}}
+        <h5>Conversion options for "{{fileName}}"</h5>
+        <form action="/file_conversion/convert" method="post" class="mb-4">
+          <input type="hidden" name="filePath" value="{{filePath}}" />
+          <div class="form-group">
+            <label for="conversionOptions">Choose conversion option</label>
+            <select name="option" id="conversionOptions" class="form-control">
+              {{#each options}}
+                <option value="{{this}}">{{this}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success">Convert</button>
+        </form>
+      {{/if}}
+
+      {{#if conversionIncomplete}}
+        <p class="text-danger">Conversion went wrong. Please try again.</p>
+      {{/if}}
+
+      {{#if conversionComplete}}
+        <a href="{{conversionLink}}" class="btn btn-link">Download converted
+          file</a>
+      {{/if}}
+    </div>
+  </div>
 </main>

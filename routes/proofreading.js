@@ -17,7 +17,7 @@ router
   })
   .post(async (req, res) => {
     let theBody = req.body.givenText;
-    if (theBody){
+    if (theBody) {
       theBody = theBody.trim();
       theBody = sanitize(theBody);
     }

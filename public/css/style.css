@@ -38,26 +38,6 @@ body {
   border: 1px solid #ddd; /* Border to differentiate the legend */
 }
 
-/* #course-list {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: auto;
-  height: 100vh;
-  margin: 2px;
-  flex: 1;
-} */
-
-/* #courses {
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
-  font-size: 1.2rem;
-  gap: 5px;
-} */
-
 /* Calendar CSS*/
 .alert-success {
   display: none;
@@ -80,4 +60,70 @@ body {
 
 .error-text {
   color: red;
+}
+
+/* Home Page Styling */
+.home-page-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f7fa; /* Light background for the home page */
+  color: #333; /* Dark text for readability */
+  font-family: "Arial", sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Home Page Welcome Title (h1) */
+.home-page-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #343a40; /* Dark color for title */
+  text-transform: capitalize;
+  margin-bottom: 20px; /* Spacing between title and content */
+}
+
+/* Home Page Welcome Description (p) */
+.home-page-description {
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+  font-size: 1.1rem;
+  color: #6c757d; /* Light gray for the description */
+  padding: 0 20px;
+  margin-bottom: 30px; /* Add some space after the description */
+}
+
+/* Button Style (Specific to Home Page) */
+.home-page-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.home-page-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Custom Background Style for Home Page */
+.home-page-bg-light {
+  background-color: #f8f9fa !important; /* Ensuring the light background */
+}
+
+/* Responsive Adjustment */
+@media (max-width: 768px) {
+  .home-page-title {
+    font-size: 2rem; /* Slightly smaller title for mobile */
+  }
+
+  .home-page-description {
+    font-size: 1rem; /* Smaller description text for mobile */
+  }
 }

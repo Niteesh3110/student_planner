@@ -26,8 +26,6 @@ Thumbs.db
 *.swp
 *.swo
 
-#md-files
-*.md
 
 # NPM package lock files (optional, can be included if you prefer to lock dependencies)
 # package-lock.json

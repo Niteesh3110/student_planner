@@ -59,8 +59,8 @@ router.get("/getTasks", async (req, res) => {
 
 router.post("/addTask", async (req, res) => {
   try {
-    const userId = req.session.user.userId;
-    const { header } = req.body;
+    let userId = req.session.user.userId;
+    let { header } = req.body;
 
     if (!header || typeof header !== "string" || header.trim().length === 0) {
       return res.status(400).json({ error: "Task header is required." });
@@ -81,8 +81,8 @@ router.post("/addTask", async (req, res) => {
 
 router.put("/updateTask/:id", async (req, res) => {
   try {
-    const taskId = req.params.id;
-    const { header, text } = req.body;
+    let taskId = req.params.id;
+    let { header, text } = req.body;
     const userId = req.session.user.userId;
 
     console.log("Updating task ID:", taskId, "Header:", header, "Text:", text);
