@@ -8,7 +8,7 @@
   >
     <div class="card-header text-center">Upload file</div>
     <div class="card-body">
-      <form method="POST" action="/proofread">
+      <form method="POST" id="theForm" action="/proofread">
         <label for="givenText">Paste the text you want proofread here:</label><br
         />
         <textarea
@@ -20,13 +20,13 @@
         <button type="submit" class="btn btn-primary">Upload Text</button>
       </form>
 
-<form method="POST" id="theForm" action="/">
+{{!-- <form method="POST" id="theForm" action="/">
     <label for="givenText">Paste the text you want proofread here:</label><br>
     <input type="text" name="givenText" id="givenText"><br>
     <button type="submit">Upload Text</button>
-</form>
+</form> --}}
 
-<form method="POST" id="fileForm"  enctype="multipart/form-data" action="/">
+<form method="POST" id="fileForm"  enctype="multipart/form-data" action="/proofread">
      <label for="userFile">Or upload the text file you want proofread here:</label><br>
     <input type="file" name="userFile" id="userFile" accept="text/plain,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"><br>
     <button type="submit">Upload File</button>

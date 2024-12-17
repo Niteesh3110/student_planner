@@ -17,8 +17,10 @@ router
   })
   .post(async (req, res) => {
     let theBody = req.body.givenText;
-    theBody = theBody.trim();
-    theBody = sanitize(theBody);
+    if (theBody){
+      theBody = theBody.trim();
+      theBody = sanitize(theBody);
+    }
     const theFile = req.files;
     let data;
     let fileGiven;
