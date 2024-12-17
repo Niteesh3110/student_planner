@@ -139,7 +139,7 @@ addQuestionBtn.addEventListener("click", async () => {
     document.getElementById("add-question").focus();
     window.location.reload();
   } else {
-    console.log(`title or description missing`);
+    alert(`title or description missing`);
   }
 });
 

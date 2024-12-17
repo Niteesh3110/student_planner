@@ -1,5 +1,7 @@
 import express from "express";
 const router = express.Router();
+import xss from "xss";
+const sanitize = (input) => xss(input);
 import {
   firstNameChecking,
   lastNameChecking,
@@ -26,6 +28,8 @@ router
       password = password.trim();
       await validateUserId(userId);
       await validatePassword(password);
+      userId = sanitize(userId);
+      password = sanitize(password);
       let isSignedIn = await signIn(userId, password);
       console.log(isSignedIn);
       if (isSignedIn.boolean) {
@@ -46,8 +50,12 @@ router
     } catch (error) {
       console.log(error);
       if (error.status)
-        return res.status(error.status).json({ error: error.error });
-      return res.status(500).json({ error });
+        return res
+          .status(error.status)
+          .render("signin", { error: "Invalid Username or Password" });
+      return res
+        .status(500)
+        .render("signin", { error: "Invalid Username or Password" });
     }
   });
 
@@ -89,6 +97,14 @@ router
       lastName = lastName.trim();
       userId = userId.trim().toLowerCase();
       email = email.trim().toLowerCase();
+      password = password.trim();
+      confirmPassword = confirmPassword.trim();
+      firstName = sanitize(firstName);
+      lastName = sanitize(lastName);
+      userId = sanitize(userId);
+      email = sanitize(email);
+      password = sanitize(password);
+      confirmPassword = sanitize(confirmPassword);
       let checkIfUserExists = await getUserByUserId(userId);
       if (!checkIfUserExists.boolean) {
         let addUserResult = await addUser(
@@ -101,11 +117,25 @@ router
         console.log("userAdded", addUserResult);
         if (addUserResult.boolean) {
           return res.redirect("/signin");
+        } else {
+          return res
+            .status(400)
+            .render("signup", { error: "Could not signup unexpected error" });
         }
+      } else {
+        return res
+          .status(409)
+          .render("signup", { error: "Cannot use this username" });
       }
     } catch (error) {
+      if (error.status === 400) {
+        console.log(error);
+        return res
+          .status(400)
+          .render("signup", { error: `Invalid Input passed ${error.error}` });
+      }
       console.log(error);
-      return res.status(error.status).json({ error: error.error });
+      return res.status(error.status).render("singup");
     }
   });
 

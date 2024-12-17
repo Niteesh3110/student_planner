@@ -1,6 +1,8 @@
 import express from "express";
 import axios from "axios";
 const router = express.Router();
+import xss from "xss";
+const sanitize = (input) => xss(input);
 import { getCourseNameAndPrereq } from "../data/academic_planner.js";
 import { checkUpdateMeTooInput, checkLikeInput } from "../tasks/qna_helper.js";
 import {
@@ -84,6 +86,15 @@ router.route("/questions/post").post(async (req, res) => {
   try {
     let { userId, title, description, courseCode, createdAt } = req.body; // TEMP USER ID
     console.log(req.body);
+    if (!userId || !title || !description || !courseCode || !createdAt) {
+      throw { boolean: false, status: 400, error: "Invalid Input" };
+    }
+    title = title.trim();
+    description = description.trim();
+    createdAt = createdAt.trim();
+    title = sanitize(title);
+    description = sanitize(description);
+    createdAt = sanitize(createdAt);
     let response = await addQuestionByUserId(
       userId,
       title,
@@ -102,6 +113,9 @@ router.route("/questions/post").post(async (req, res) => {
         .json({ boolean: response.boolean, error: response.error });
     }
   } catch (error) {
+    if (error.status) {
+      return res.status(400).json({ error: error.error });
+    }
     return res.status(500).json({
       boolean: false,
       error: `Something went wrong ${error}`,
@@ -188,7 +202,9 @@ router.route("/questions/delete/:questionId").delete(async (req, res) => {
     if (!questionId)
       return res.status(400).json({ error: "Invalid quesitonId" });
     const userId = req.session.user.userId;
+    console.log(questionId);
     let deleted = await deleteQuestion(userId, questionId);
+    console.log(deleted);
     if (deleted.boolean) {
       return res.status(deleted.status).json({ boolean: true });
     } else {
@@ -246,7 +262,11 @@ router.route("/ans/post").post(async (req, res) => {
     if (!questionId || !answer || !createdAt) {
       res.status(400).json({ error: "Invalid input passed" });
     }
-    const userId = req.session.user.userId; //TEMP USER ID
+    const userId = req.session.user.userId;
+    answer = answer.trim();
+    createdAt = createdAt.trim();
+    answer = sanitize(answer);
+    createdAt = sanitize(createdAt);
     let result = await addAnswersByUserId(
       userId,
       questionId,
@@ -313,29 +333,36 @@ router.route("/ans/updateLike").patch(async (req, res) => {
   }
 });
 
-router.route("/ans/delete/:answerId/:questionId").delete(async (req, res) => {
-  const answerId = req.params.answerId.trim();
-  const quesitonId = req.params.questionId.trim();
-  let userId;
-  if (!answerId || !quesitonId) {
-    return res.status(400).json({ boolean: false, error: "Invalid Input" });
-  }
-  if (req.session.user) {
-    userId = req.session.user.userId;
-    if (!userId || userId.trim().length === 0) {
-      return res.status(404).json({ boolean: false, error: "User not found!" });
+router
+  .route("/ans/delete/:answerId/:questionId/:answerUserId")
+  .delete(async (req, res) => {
+    const answerId = req.params.answerId.trim();
+    const quesitonId = req.params.questionId.trim();
+    const answerUserId = req.params.answerUserId.trim();
+    console.log(req.params);
+    let userId;
+    if (!answerId || !quesitonId || !answerUserId) {
+      return res.status(400).json({ boolean: false, error: "Invalid Input" });
     }
-  } else {
-    return res.status(401).json({ boolean: false, error: "Unauthorized" });
-  }
-  let result = await deleteAnswer(userId, answerId, quesitonId);
-  if (result.boolean) {
-    return res.status(200).json({ boolean: true });
-  } else {
-    return res
-      .status(400)
-      .json({ boolean: false, error: "Could not delete answer" });
-  }
-});
+    if (req.session.user) {
+      userId = req.session.user.userId;
+      if (!userId || userId.trim().length === 0) {
+        return res
+          .status(404)
+          .json({ boolean: false, error: "User not found!" });
+      }
+    } else {
+      return res.status(401).json({ boolean: false, error: "Unauthorized" });
+    }
+    let result = await deleteAnswer(userId, answerUserId, answerId, quesitonId);
+    console.log("delete Answer ROutes", result);
+    if (result.boolean) {
+      return res.status(200).json({ boolean: true });
+    } else {
+      return res
+        .status(400)
+        .json({ boolean: false, error: "Could not delete answer" });
+    }
+  });
 
 export default router;

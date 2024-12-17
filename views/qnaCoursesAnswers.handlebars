@@ -31,7 +31,7 @@
         data-question-id="{{questions.questionId}}"
         id="question-container"
       >
-        <p>{{questions.questionUserId}}</p>
+        <p id="question-user-id">{{questions.questionUserId}}</p>
         <h3>{{questions.title}}</h3>
         <p>{{questions.description}}</p>
         <p class="" id="question-creation-date">{{questions.createdAt}}</p>
@@ -93,7 +93,7 @@
                 {{#if isUser}}
                   <button
                     class="btn btn-outline-danger btn-sm"
-                    id="delete-btn-{{answerId}}"
+                    id="delete-btn"
                   >DEL</button>
                 {{/if}}
               </div>

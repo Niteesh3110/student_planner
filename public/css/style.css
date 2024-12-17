@@ -73,3 +73,11 @@ body {
   overflow-y: auto; /* Add vertical scroll when necessary */
   padding: 1rem; /* Padding for inner spacing */
 }
+
+.input-error {
+  border: 2px solid red !important;
+}
+
+.error-text {
+  color: red;
+}

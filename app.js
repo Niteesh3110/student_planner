@@ -52,8 +52,8 @@ app.engine(
       ifEquals: function (a, b, options) {
         if (a === b) {
           return options.fn(this);
-          return options.inverse(this);
         }
+        return options.inverse(this);
       },
     },
   })
@@ -89,6 +89,11 @@ app.use("/signout", signOutMiddleware);
 app.set("view engine", "handlebars");
 
 configRoutes(app);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
+});
 
 app.listen(3000, () => {
   console.log("Server will be running on http://localhost:3000");

@@ -24,6 +24,7 @@
             <div class="card-body py-5 px-md-5">
               <h2 class="fw-bold mb-2 text-uppercase text-center">SIGN UP</h2>
               <p class="text-black-50 mb-4 text-center">Please complete the form</p>
+              {{#if error}}<p id="error" class="error-text">{{error}}</p>{{/if}}
               <form id="signup-form" method="post" action="/signup">
                 <div class="row">
                   <div class="col-md-6 mb-3">
@@ -128,3 +129,4 @@
     </div>
   </div>
 </section>
+<script type="module" src="/public/js/signup.js"></script>

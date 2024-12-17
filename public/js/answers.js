@@ -72,6 +72,56 @@ async function checkIfAnswerLiked(questionId, answerId) {
   }
 }
 
+async function deleteAnswer(answerUserId, answerId, questionId) {
+  try {
+    const response = await axios.delete(
+      `http://localhost:3000/qna/ans/delete/${answerId}/${questionId}/${answerUserId}`
+    );
+    if (response.data.boolean) {
+      return response.data.boolean;
+    } else {
+      console.error(response.data.error);
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+// Delete Button
+document.addEventListener("click", async (event) => {
+  const questionUserId = document
+    .getElementById("question-user-id")
+    .textContent.trim();
+  const questionId = document
+    .getElementById("question-container")
+    .getAttribute("data-question-id");
+  console.log(questionUserId, questionId);
+  const userId = await getUserId();
+  if (event.target.closest("#delete-btn")) {
+    const deleteButton = event.target.closest("#delete-btn");
+    const cardBody = event.target.closest(".card");
+    console.log(cardBody);
+    if (cardBody) {
+      try {
+        const answerUserId = cardBody
+          .querySelector("#answer-user-id")
+          .textContent.trim();
+        const answerId = cardBody.getAttribute("data-answer-id");
+        console.log(answerId, answerUserId);
+        if (await deleteAnswer(answerUserId, answerId, questionId)) {
+          window.location.reload();
+        } else {
+          console.log("Could not delete question");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+});
+
 // FUNCTION TO ADD ANSWERS
 async function addAnswer(quesitonId) {
   const answer = document.getElementById("answer").value;
@@ -87,7 +137,6 @@ const modalInstance = new bootstrap.Modal(modalElement);
 let addAnswerButton = document.getElementById("add-answer");
 const questionContainer = document.getElementById("question-container");
 const questionId = questionContainer.getAttribute("data-question-id");
-console.log(addAnswerButton);
 addAnswerButton.addEventListener("click", async () => {
   console.log(questionId);
   if (await addAnswer(questionId)) {
@@ -95,7 +144,7 @@ addAnswerButton.addEventListener("click", async () => {
     document.getElementById("add-answer").focus();
     window.location.reload();
   } else {
-    console.log("error");
+    alert("Answer field cannot be empty");
   }
 });
 

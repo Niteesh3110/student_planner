@@ -1,15 +1,9 @@
 import mongodb from "mongodb";
 import { dbConnection, closeConnection } from "../config/mongoConnection.js";
-import { tree } from "../config/mongoCollection.js";
-import { Children } from "react";
+import { courses } from "../config/mongoCollection.js";
 
 const db = await dbConnection();
-const treeCol = await tree();
-
-let result = await treeCol.insertOne({
-  userID: "123",
-  tree: { name: "CS", Children: [] },
-});
+const courseCol = await courses();
 
 // let courseList = [
 //   {

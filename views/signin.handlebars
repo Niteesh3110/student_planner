@@ -25,6 +25,7 @@
               <h2 class="fw-bold mb-2 text-uppercase text-center">SIGN IN</h2>
               <p class="text-black-50 mb-4 text-center">Please enter your user
                 name and password!</p>
+              {{#if error}}<p id="error" class="error-text">{{error}}</p>{{/if}}
               <form id="signin-form" method="post" action="/signin">
                 <!-- Email input -->
                 <div data-mdb-input-init class="form-outline mb-4">
@@ -48,18 +49,6 @@
                     placeholder="Password"
                     aria-label="password"
                   />
-                </div>
-
-                <div class="form-check d-flex justify-content-start mb-4">
-                  <input
-                    class="form-check-input me-2"
-                    type="checkbox"
-                    value=""
-                    id="remember"
-                  />
-                  <label class="form-check-label" for="remember">
-                    Remember Me
-                  </label>
                 </div>
 
                 <!-- Submit button -->

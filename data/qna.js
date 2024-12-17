@@ -281,17 +281,18 @@ export async function updateMeToo(userId, questionUserId, questionId, func) {
 }
 
 export async function removeLikedQuestionAll(questionId) {
+  questionId = questionId.toString();
   try {
     if (!questionId || typeof questionId !== "string") {
       return { boolean: false, status: 400, error: "Invalid Input" };
     }
     const result = await qCol.updateMany(
       {
-        "likedQuestions.questionId": questionId,
+        likedQuestions: questionId,
       },
       {
         $pull: {
-          likedQuestions: { questionId: questionId },
+          likedQuestions: questionId,
         },
       }
     );
@@ -301,6 +302,8 @@ export async function removeLikedQuestionAll(questionId) {
       result.modifiedCount >= 1
     ) {
       return { boolean: true, status: 200 };
+    } else if (result.acknowledged) {
+      return { boolean: true, status: 404, error: "This answer is not liked" };
     } else {
       return {
         boolean: false,
@@ -515,7 +518,8 @@ export async function addLikedAnswers(userId, answerId, questionId) {
 
 export async function removeLikedAnswer(userId, answerId, questionId) {
   try {
-    console.log(userId, answerId, questionId);
+    answerId = answerId.toString();
+    questionId = questionId.toString();
     if (!userId || !answerId || !questionId) {
       return { boolean: false, status: 400, error: "Invalid Input" };
     }
@@ -525,9 +529,9 @@ export async function removeLikedAnswer(userId, answerId, questionId) {
     if (!flag) {
       return false;
     }
-    let result = await qCol.updateOne(
+    let result = await qCol.updateMany(
       {
-        userId: userId,
+        likedAnswers: { $elemMatch: { answerId, questionId } },
       },
       {
         $pull: {
@@ -545,6 +549,12 @@ export async function removeLikedAnswer(userId, answerId, questionId) {
       result.matchedCount === 1
     ) {
       return { boolean: true, status: 200 };
+    } else if (result.acknowledged) {
+      return {
+        boolean: true,
+        status: 404,
+        error: "This answer is not liked",
+      };
     } else {
       return {
         boolean: false,
@@ -626,27 +636,34 @@ export async function updateLike(
   }
 }
 
-export async function removeLikedAnswerAll(answerId) {
+export async function removeLikedAnswerAll(answerId, questionId) {
   try {
+    answerId = answerId.toString();
+    questionId = questionId.toString();
     if (!answerId || typeof answerId !== "string") {
       return { boolean: false, status: 400, error: "Invalid Input" };
     }
     const result = await qCol.updateMany(
       {
-        "likedAnswers.answerId": answerId,
+        likedAnswers: {
+          $elemMatch: { answerId: answerId, questionId: questionId },
+        },
       },
       {
         $pull: {
-          likedAnswers: { answerId: answerId },
+          likedAnswers: { answerId: answerId, questionId: questionId },
         },
       }
     );
+
     if (
       result.acknowledged &&
       result.matchedCount >= 1 &&
       result.modifiedCount >= 1
     ) {
       return { boolean: true, status: 200 };
+    } else if (result.acknowledged) {
+      return { boolean: true, status: 400, error: "This answer is not liked" };
     } else {
       return {
         boolean: false,
@@ -655,6 +672,7 @@ export async function removeLikedAnswerAll(answerId) {
       };
     }
   } catch (error) {
+    console.error(error);
     return {
       boolean: false,
       status: 500,
@@ -663,15 +681,19 @@ export async function removeLikedAnswerAll(answerId) {
   }
 }
 
-export async function deleteAnswer(userId, answerId, questionId) {
+export async function deleteAnswer(userId, answerUserId, answerId, questionId) {
   try {
+    console.log("questionId", questionId);
     if (
       !questionId ||
       !answerId ||
+      !answerUserId ||
       typeof questionId !== "string" ||
       typeof answerId !== "string" ||
+      typeof answerUserId !== "string" ||
       questionId.trim().length === 0 ||
-      answerId.trim().length === 0
+      answerId.trim().length === 0 ||
+      answerUserId.trim().length === 0
     ) {
       throw { status: 400, error: "Invalid question or answer Id" };
     }
@@ -680,20 +702,23 @@ export async function deleteAnswer(userId, answerId, questionId) {
     }
     questionId = questionId.trim();
     answerId = answerId.trim();
+    answerUserId = answerUserId.trim();
     questionId = ObjectId.createFromHexString(questionId);
     answerId = ObjectId.createFromHexString(answerId);
     let checkIfUserAnswered = await qCol.findOne({
-      userId: userId,
+      userId: answerUserId,
       answers: { $elemMatch: { questionId: questionId, answerId: answerId } },
     });
 
     if (checkIfUserAnswered) {
       const result = await qCol.updateOne(
-        { userId: userId },
+        { userId: answerUserId },
         { $pull: { answers: { questionId, answerId } } }
       );
+      console.log("delete answer data".result);
       if (result.acknowledged && result.modifiedCount === 1) {
-        let result = await removeLikedAnswerAll(answerId);
+        let result = await removeLikedAnswerAll(answerId, questionId);
+        console.log("removeLikedAnswer", result);
         if (result.boolean)
           return {
             boolean: true,
@@ -716,7 +741,7 @@ export async function deleteAnswer(userId, answerId, questionId) {
     return {
       boolean: false,
       status: 500,
-      error: `Something went wrong ${error}`,
+      error: `Something went wrong ${error.error}`,
     };
   }
 }

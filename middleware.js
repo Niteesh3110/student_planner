@@ -25,36 +25,61 @@ export function rootMiddleware(req, res, next) {
   next();
 }
 export function signInMiddleware(req, res, next) {
-  if (req.session.user) {
-    return res.redirect("/home");
-  }
-  next();
-}
-export function signUpMiddleware(req, res, next) {
-  if (req.session.user) {
-    return res.redirect("/home");
-  }
-  next();
-}
-export function signOutMiddleware(req, res, next) {
-  if (!req.session.user) {
+  try {
+    if (req.session.user) {
+      return res.redirect("/home");
+    }
+    next();
+  } catch (error) {
+    console.error(error);
     return res.redirect("/signin");
   }
-  next();
+}
+export function signUpMiddleware(req, res, next) {
+  try {
+    if (req.session.user) {
+      return res.redirect("/home");
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.redirect("/signin");
+  }
+}
+export function signOutMiddleware(req, res, next) {
+  try {
+    if (!req.session.user) {
+      return res.redirect("/signin");
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.redirect("/signin");
+  }
 }
 
 export function academicPlannerMiddleware(req, res, next) {
-  if (!req.session.user) {
+  try {
+    if (!req.session.user) {
+      return res.redirect("/signin");
+    }
+    next();
+  } catch (error) {
+    console.error(error);
     return res.redirect("/signin");
   }
-  next();
 }
 
 export function qnaMiddleware(req, res, next) {
-  if (!req.session.user) {
+  try {
+    if (!req.session.user) {
+      return res.redirect("/signin");
+    }
+    next();
+  } catch (error) {
+    console.error(error);
     return res.redirect("/signin");
   }
-  next();
 }
 
 export function homeMiddleware(req, res, next) {
@@ -62,10 +87,11 @@ export function homeMiddleware(req, res, next) {
     if (!req.session.user) {
       return res.redirect("/signin");
     }
+    next();
   } catch (error) {
     console.error(error);
+    return res.redirect("/signin");
   }
-  next();
 }
 
 export function proofreadMiddleware(req, res, next) {
@@ -73,11 +99,11 @@ export function proofreadMiddleware(req, res, next) {
     if (!req.session.user) {
       return res.redirect("/signin");
     }
+    next();
   } catch (error) {
-    console.error(error);
-    return next();
+    console.error("Error in proofreadMiddleware:", error);
+    return res.redirect("/signin");
   }
-  next();
 }
 
 export function calendarMiddleware(req, res, next) {
@@ -85,11 +111,12 @@ export function calendarMiddleware(req, res, next) {
     if (!req.session.user) {
       return res.redirect("/signin");
     }
+    next();
   } catch (error) {
-    console.error(error);
-    return;
+    console.error("Error in calendarMiddleware:", error);
+
+    return res.redirect("/signin");
   }
-  next();
 }
 
 export function fileConversionMiddleware(req, res, next) {
@@ -97,10 +124,12 @@ export function fileConversionMiddleware(req, res, next) {
     if (!req.session.user) {
       return res.redirect("/signin");
     }
+    next();
   } catch (error) {
-    console.error(error);
+    console.error("Error in fileConversionMiddleware:", error);
+
+    return res.redirect("/signin");
   }
-  next();
 }
 
 export function isLoggedInMiddleware(req, res, next) {
@@ -126,8 +155,13 @@ export function localUserIdMiddleware(req, res, next) {
 }
 
 export function sessionRoutesMiddleware(req, res, next) {
-  if (!req.session.user && req.session.user.userId) {
-    return res.redirect("/signin");
+  try {
+    if (!req.session.user && !req.session.user.userId) {
+      return res.redirect("/signin");
+    }
+    next();
+  } catch (error) {
+    console.error("Error in sessionRoutesMiddleware:", error);
+    return res.redirect("/signout");
   }
-  next();
 }

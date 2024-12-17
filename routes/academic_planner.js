@@ -1,6 +1,5 @@
 import express from "express";
-import xss from "xss";
-const sanitize = (input) => xss(input);
+
 const router = express.Router();
 import {
   getCourseByCourseCode,
@@ -19,7 +18,7 @@ router.route("/").get(async (req, res) => {
 router.route("/getCourse/:courseCode").get(async (req, res) => {
   try {
     let courseCode = req.params.courseCode;
-    courseCode = sanitize(courseCode); // Sanitized
+    courseCode = courseCode; // Sanitized
     let courseData = await getCourseByCourseCode(courseCode);
     if (courseData.boolean) {
       res.status(200).json(courseData);
@@ -115,8 +114,8 @@ router.route("/checkDuplicate").get(async (req, res) => {
   try {
     if (req.session.user.userId && req.session.user) {
       let { courseCode, userId } = req.query; // CHECK IF USER TEMP
-      courseCode = sanitize(courseCode);
-      userId = sanitize(userId);
+      courseCode = courseCode;
+      userId = userId;
       let result = await checkDuplicate(courseCode, userId);
       if (result.error === "User not found") {
         return res
@@ -147,8 +146,8 @@ router.route("/deleteCourse").get(async (req, res) => {
   try {
     if (req.session.user && req.session.user.userId) {
       let { userId, courseCode } = req.query; // CHECK IF USER TEMP
-      userId = sanitize(userId);
-      courseCode = sanitize(courseCode);
+      userId = userId;
+      courseCode = courseCode;
       let response = await removeCourseTree(userId, courseCode);
       // console.log(response);
       if (response.boolean) {
